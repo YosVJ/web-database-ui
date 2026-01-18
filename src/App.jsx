@@ -1,191 +1,83 @@
-import { useEffect, useMemo, useState } from "react";
-import "./App.css";
+import React, { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+import Auth from "./Auth.jsx";
+import Dashboard from "./Dashboard.jsx";
+import CompanyOptions from "./CompanyOptions.jsx";
 
+import { supabase } from "./lib/supabaseClient.js";
 
 export default function App() {
-  const API = useMemo(
-    () => import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
-    []
-  );
+  const [session, setSession] = useState(null);
 
-  // Theme state with localStorage persistence
-  const [theme, setTheme] = useState(() => {
-    const saved = localStorage.getItem("theme");
-    return saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const [company, setCompany] = useState(() => {
+    const saved = localStorage.getItem("selected_company");
+    return saved ? JSON.parse(saved) : null;
   });
 
-  const [text, setText] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [editingId, setEditingId] = useState(null);
-  const [editText, setEditText] = useState("");
-  const [rowLoading, setRowLoading] = useState({});
-
-  // Apply theme to document
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
-  }, [theme]);
+    // get initial session
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session ?? null);
+    });
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "light" ? "dark" : "light"));
-  };
+    // listen for changes
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession ?? null);
+    });
 
-  async function loadMessages() {
-    setError("");
-    setLoading(true);
-    try {
-      const res = await fetch(`${API}/messages`);
-      if (!res.ok) throw new Error(`Failed to load (${res.status})`);
-      const data = await res.json();
-      setMessages(Array.isArray(data) ? data : []);
-    } catch (e) {
-      setError(e?.message || "Failed to load messages");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    loadMessages();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => listener?.subscription?.unsubscribe();
   }, []);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    const value = text.trim();
-    if (!value) return;
-
-    setError("");
-    setSaving(true);
-    try {
-      const res = await fetch(`${API}/messages`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: value }),
-      });
-      if (!res.ok) throw new Error(`Failed to save (${res.status})`);
-      setText("");
-      await loadMessages();
-    } catch (e) {
-      setError(e?.message || "Failed to save message");
-    } finally {
-      setSaving(false);
-    }
+  function onSelectCompany(c) {
+    setCompany(c);
+    localStorage.setItem("selected_company", JSON.stringify(c));
   }
 
-  function startEdit(item) {
-    setEditingId(item.id);
-    setEditText(item.text);
-    setError("");
+  async function onLogout() {
+    localStorage.removeItem("selected_company");
+    setCompany(null);
+    await supabase.auth.signOut();
   }
 
-  function cancelEdit() {
-    setEditingId(null);
-    setEditText("");
+  // Simple protection
+  function RequireAuth({ children }) {
+    if (!session) return <Navigate to="/" replace />;
+    return children;
   }
-
-  async function updateMessage(id) {
-    const value = editText.trim();
-    if (!value) return;
-
-    setError("");
-    setRowLoading((prev) => ({ ...prev, [id]: "saving" }));
-    try {
-      const res = await fetch(`${API}/messages/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: value }),
-      });
-      if (!res.ok) throw new Error(`PUT /messages/${id} failed (${res.status})`);
-      setEditingId(null);
-      setEditText("");
-      await loadMessages();
-    } catch (e) {
-      setError(e?.message || "Failed to update message");
-    } finally {
-      setRowLoading((prev) => {
-        const next = { ...prev };
-        delete next[id];
-        return next;
-      });
-    }
-  }
-
-  async function deleteMessage(id) {
-    if (!window.confirm("Are you sure you want to delete this message?")) {
-      return;
-    }
-
-    setError("");
-    setRowLoading((prev) => ({ ...prev, [id]: "deleting" }));
-    try {
-      const res = await fetch(`${API}/messages/${id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error(`DELETE /messages/${id} failed (${res.status})`);
-      await loadMessages();
-    } catch (e) {
-      setError(e?.message || "Failed to delete message");
-    } finally {
-      setRowLoading((prev) => {
-        const next = { ...prev };
-        delete next[id];
-        return next;
-      });
-    }
-  }
-
-  useEffect(() => {
-    loadMessages();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
-    <div className="page">
-      <div className="card">
-        <h1>Messages</h1>
+    <BrowserRouter>
+      <Routes>
+        {/* Login */}
+        <Route path="/" element={<Auth session={session} />} />
 
-        <form className="form" onSubmit={handleSubmit}>
-          <input
-            className="input"
-            placeholder="Type a message…"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            maxLength={200}
-          />
-          <button className="btn" type="submit" disabled={saving || !text.trim()}>
-            {saving ? "Saving…" : "Save"}
-          </button>
-        </form>
+        {/* After login, go to companies */}
+        <Route
+          path="/companies"
+          element={
+            <RequireAuth>
+              <CompanyOptions onSelectCompany={onSelectCompany} />
+            </RequireAuth>
+          }
+        />
 
-        {error ? <div className="alert">{error}</div> : null}
+        {/* Dashboard */}
+        <Route
+          path="/dashboard"
+          element={
+            <RequireAuth>
+              <Dashboard company={company} onLogout={onLogout} />
+            </RequireAuth>
+          }
+        />
 
-        {loading ? (
-          <div className="empty">Loading…</div>
-        ) : messages.length === 0 ? (
-          <div className="empty">No messages yet.</div>
-        ) : (
-          <ul>
-            {messages
-  .slice()
-  .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-  .map((m) => (
-    <li key={m.id}>
-      <div>{m.text}</div>
-      {m.created_at ? (
-        <small style={{ opacity: 0.7 }}>
-          {new Date(m.created_at).toLocaleString()}
-        </small>
-      ) : null}
-    </li>
-  ))}
-          </ul>
-        )}
-      </div>
-    </div>
+        {/* Default redirect */}
+        <Route
+          path="*"
+          element={<Navigate to={session ? "/companies" : "/"} replace />}
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }

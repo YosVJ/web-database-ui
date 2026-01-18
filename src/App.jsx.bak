@@ -1,0 +1,33 @@
+import { useEffect, useState } from "react";
+import { supabase } from "./lib/supabaseClient";
+import Auth from "./Auth";
+import Dashboard from "./Dashboard";
+
+export default function App() {
+  const [session, setSession] = useState(null);
+  const [selectedCompany, setSelectedCompany] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+    });
+
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  // If not logged in -> show login page
+  if (!session) return <Auth />;
+
+  // Logged in -> show company options screen
+  return (
+    <Dashboard
+      user={session.user}
+      onSelectCompany={(companyKey) => {
+        setSelectedCompany(companyKey);
+        alert(`Selected: ${companyKey} (next step: route to company page)`);
+      }}
+    />
+  );
+}
