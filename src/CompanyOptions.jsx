@@ -1,29 +1,26 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 
 export default function CompanyOptions({ onSelectCompany }) {
-  const navigate = useNavigate();
-
   const companies = [
     {
       id: "synercore",
       name: "Synercore",
       link: "https://synercore.com.ph",
-      logo: "/synercore-logo.png", // from public/
+      logo: "/synercore-logo.png",
       desc: "Heavy Industries / Operations",
     },
     {
       id: "sy3",
       name: "SY3 Energy",
       link: "https://sy3.com.ph",
-      logo: "/vite.svg", // placeholder (you can replace later)
+      logo: "/vite.svg",
       desc: "Energy / Maintenance Services",
     },
   ];
 
   function pickCompany(company) {
     onSelectCompany(company);
-    navigate("/dashboard");
+    // Navigate is no longer used - using simple state instead
   }
 
   return (

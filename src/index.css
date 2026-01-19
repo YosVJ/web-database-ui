@@ -1,9 +1,39 @@
+/* Tailwind disabled (keep for later if you re-enable)
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+*/
 
-html, body, #root {
-  height: 100%;
-  width: 100%;
-  margin: 0;
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;     /* kills the white frame */
+  padding: 0 !important;    /* kills the white frame */
+  background: #0a0a0c !important;
+  overflow: hidden !important; /* kills page scrolling */
+}
+
+/* Pin the whole app to the viewport so nothing can push layout bigger */
+#root {
+  position: fixed !important;
+  inset: 0 !important;
+  max-width: none !important;
+}
+
+/* Keep your footer always visible */
+footer {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 16px;
+  z-index: 1000;
+
+  width: calc(100% - 48px);
+  max-width: 560px;
 }
