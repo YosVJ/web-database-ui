@@ -1,38 +1,68 @@
-import { useEffect, useState } from "react";
+// src/App.jsx
+import React from "react";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import LoginPage from "./pages/LoginPage.jsx";
+import Dashboard from "./Dashboard.jsx";
+import RequireAuth from "./routes/RequireAuth.jsx";
+import SpaceShell from "./ui/Spaceshell.jsx";
+import TopBar from "./ui/TopBar.jsx";
+import { LangProvider, useLangContext } from "./LangContext.jsx";
 import { supabase } from "./lib/supabaseClient";
-import Auth from "./Auth";
-import Dashboard from "./Dashboard";
-import "./App.css";
 
+function AppContent() {
+  const { lang, setLang, langSaving } = useLangContext();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+    } finally {
+      navigate("/login", { replace: true });
+    }
+  };
+
+  return (
+    <>
+      <TopBar
+        lang={lang}
+        onLangChange={setLang}
+        langSaving={langSaving}
+        onLogout={handleLogout}
+      />
+
+      <Routes>
+        <Route path="/" element={<Navigate to="/app" replace />} />
+
+        <Route
+          path="/login"
+          element={
+            <SpaceShell showMeteors={false} panel={false} paddingTop={24} constrain maxWidth={1100}>
+              <LoginPage />
+            </SpaceShell>
+          }
+        />
+
+        <Route
+          path="/app"
+          element={
+            <SpaceShell showMeteors={true} panel={false} paddingTop={0} constrain={false}>
+              <RequireAuth>
+                <Dashboard />
+              </RequireAuth>
+            </SpaceShell>
+          }
+        />
+
+        <Route path="*" element={<Navigate to="/app" replace />} />
+      </Routes>
+    </>
+  );
+}
 
 export default function App() {
-  const [session, setSession] = useState(undefined);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-    });
-
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, newSession) => {
-        setSession(newSession);
-      }
-    );
-
-    return () => listener.subscription.unsubscribe();
-  }, []);
-
-  if (session === undefined) {
-    return (
-      <div style={{ color: "white", padding: 40 }}>
-        Initializing…
-      </div>
-    );
-  }
-
-  if (!session) {
-    return <Auth />;
-  }
-
-  return <Dashboard user={session.user} />;
+  return (
+    <LangProvider>
+      <AppContent />
+    </LangProvider>
+  );
 }

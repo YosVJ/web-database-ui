@@ -1,57 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "./lib/supabaseClient";
-import { useLangContext } from "./LangContext.jsx";
-
-const TEXT = {
-  en: {
-    login: "Login",
-    signup: "Sign up",
-    continueMs: "Continue with Microsoft",
-    or: "or",
-    email: "Email",
-    emailPh: "you@company.com",
-    password: "Password",
-    passPh: "••••••••",
-    minChars: "Minimum 6 characters.",
-    loginBtn: "Login",
-    signupBtn: "Create account",
-    working: "Working...",
-    subtitle: "Log in to continue to Synercore",
-    note: "Secure, clean, and ready when you are.",
-    signedInOk: "Signed in successfully. Profile synced.",
-    signedInSyncFail: "Signed in, but profile sync failed.",
-    accountCreated: "Account created. You can now log in.",
-    checkEmail: "Account created. Check your email to confirm, then log in.",
-    welcomeBack: "Welcome back! Logged in and profile synced.",
-    signupFailed: "Signup failed.",
-    loginFailed: "Login failed.",
-    msSsoTitle: "Microsoft SSO via Supabase",
-  },
-  tl: {
-    login: "Mag-login",
-    signup: "Mag-sign up",
-    continueMs: "Magpatuloy gamit ang Microsoft",
-    or: "o",
-    email: "Email",
-    emailPh: "ikaw@kumpanya.com",
-    password: "Password",
-    passPh: "••••••••",
-    minChars: "Hindi bababa sa 6 na karakter.",
-    loginBtn: "Mag-login",
-    signupBtn: "Gumawa ng account",
-    working: "Sandali…",
-    subtitle: "Mag-login upang magpatuloy sa Synercore",
-    note: "Ligtas, maayos, at handa kapag ikaw ay handa.",
-    signedInOk: "Matagumpay na naka-login. Na-sync ang profile.",
-    signedInSyncFail: "Naka-login, pero hindi na-sync ang profile.",
-    accountCreated: "Nagawa ang account. Maaari ka nang mag-login.",
-    checkEmail: "Nagawa ang account. I-check ang email para i-confirm, pagkatapos mag-login.",
-    welcomeBack: "Welcome back! Naka-login at na-sync ang profile.",
-    signupFailed: "Hindi nagtagumpay ang pag-sign up.",
-    loginFailed: "Hindi nagtagumpay ang pag-login.",
-    msSsoTitle: "Microsoft SSO gamit ang Supabase",
-  },
-};
 
 function MicrosoftIcon({ size = 18 }) {
   return (
@@ -72,11 +20,7 @@ function MicrosoftIcon({ size = 18 }) {
 }
 
 function formatTime12h(date) {
-  return date.toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
+  return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true });
 }
 
 function getGreetingByHour(hour) {
@@ -101,14 +45,7 @@ async function saveUserProfile(user, provider) {
   if (error) throw error;
 }
 
-/**
- * Auth
- * Props:
- * - hideLocalDock?: boolean
- *   When true, Auth will NOT render any top-right controls.
- *   TopBar should own time/live/theme/lang on BOTH login + app pages.
- */
-export default function Auth({ hideLocalDock = false }) {
+export default function Auth() {
   const [mode, setMode] = useState("login"); // "login" | "signup"
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -117,37 +54,19 @@ export default function Auth({ hideLocalDock = false }) {
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
 
-  // ✅ Language from context (TopBar changes this)
-  const { lang } = useLangContext();
-  const t = TEXT[lang] || TEXT.en;
-
-  // Theme is read from localStorage (TopBar owns the toggle)
+  // Theme (dark/light)
   const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
-  const isLight = theme === "light";
 
-  // keep theme in sync if TopBar changes it
-  useEffect(() => {
-    const sync = () => setTheme(localStorage.getItem("theme") || "dark");
-
-    const onStorage = (e) => {
-      if (e.key === "theme") sync();
-    };
-    const onFocus = () => sync();
-
-    window.addEventListener("storage", onStorage);
-    window.addEventListener("focus", onFocus);
-
-    return () => {
-      window.removeEventListener("storage", onStorage);
-      window.removeEventListener("focus", onFocus);
-    };
-  }, []);
-
-  // Live time + greeting (displayed in hero only, not in dock)
+  // Live time + greeting
   const [now, setNow] = useState(() => new Date());
+
   useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 30_000);
-    return () => clearInterval(timer);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 30_000);
+    return () => clearInterval(t);
   }, []);
 
   const greeting = useMemo(() => getGreetingByHour(now.getHours()), [now]);
@@ -163,17 +82,16 @@ export default function Auth({ hideLocalDock = false }) {
         try {
           const provider = session.user.app_metadata?.provider || "oauth";
           await saveUserProfile(session.user, provider);
-          setMsg(t.signedInOk);
+          setMsg("Signed in successfully. Profile synced.");
           setErr("");
         } catch (e) {
-          setErr(e?.message || t.signedInSyncFail);
+          setErr(e?.message || "Signed in, but profile sync failed.");
         }
       }
     });
 
     return () => data.subscription.unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lang]); // rebind messages if language changes
+  }, []);
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -187,14 +105,14 @@ export default function Auth({ hideLocalDock = false }) {
 
       if (data.user) {
         await saveUserProfile(data.user, "email");
-        setMsg(t.accountCreated);
+        setMsg("Account created. You can now log in.");
         setMode("login");
       } else {
-        setMsg(t.checkEmail);
+        setMsg("Account created. Check your email to confirm, then log in.");
         setMode("login");
       }
     } catch (e) {
-      setErr(e?.message || t.signupFailed);
+      setErr(e?.message || "Signup failed.");
     } finally {
       setLoading(false);
     }
@@ -214,9 +132,9 @@ export default function Auth({ hideLocalDock = false }) {
       if (error) throw error;
 
       await saveUserProfile(data.user, "email");
-      setMsg(t.welcomeBack);
+      setMsg("Welcome back! Logged in and profile synced.");
     } catch (e) {
-      setErr(e?.message || t.loginFailed);
+      setErr(e?.message || "Login failed.");
     } finally {
       setLoading(false);
     }
@@ -234,23 +152,35 @@ export default function Auth({ hideLocalDock = false }) {
     if (error) setErr(error.message);
   };
 
+  const isLight = theme === "light";
+
   const styles = makeStyles(isLight);
 
   return (
-    <div style={styles.container}>
-      {/* Optional fallback dock (normally OFF via <Auth hideLocalDock /> in LoginPage) */}
-      {!hideLocalDock ? (
-        <div style={styles.localDock} aria-hidden>
-          <div style={styles.localDockPill}>
-            <span style={styles.localDot} />
-            <span style={styles.localDockLabel}>LIVE</span>
-            <span style={styles.localDockTime}>{timeText}</span>
+    <div style={styles.page}>
+      {/* Top-right LIVE + time + theme toggle */}
+      <div style={styles.topBar}>
+        <div />
+        <div style={styles.topRight}>
+          <div style={styles.livePill} title="Status">
+            <span style={styles.liveDot} />
+            <span>LIVE</span>
+            <span style={styles.liveTime}>{timeText}</span>
           </div>
-        </div>
-      ) : null}
 
-      <div style={styles.shell} className="_auth_shell_fix">
-        {/* HERO */}
+          <button
+            type="button"
+            onClick={() => setTheme(isLight ? "dark" : "light")}
+            style={styles.themeBtn}
+            title={isLight ? "Switch to Dark Mode" : "Switch to Light Mode"}
+          >
+            {isLight ? "Dark" : "Light"}
+          </button>
+        </div>
+      </div>
+
+      <div style={styles.shell}>
+        {/* Hero */}
         <section style={styles.hero}>
           <div style={styles.logoWrap}>
             <img
@@ -262,35 +192,30 @@ export default function Auth({ hideLocalDock = false }) {
           </div>
 
           <h1 style={styles.heroTitle}>{greeting}</h1>
-          <p style={styles.heroSubtitle}>{t.subtitle}</p>
-          <p style={styles.heroNote}>{t.note}</p>
+          <p style={styles.heroSubtitle}>Log in to continue to Synercore</p>
+
+          <p style={styles.heroNote}>Secure, clean, and ready when you are.</p>
         </section>
 
-        {/* AUTH CARD */}
+        {/* Auth card */}
         <section style={styles.card}>
           <header style={styles.cardHeader}>
             <div style={styles.modeToggle}>
               <button
                 type="button"
                 onClick={() => setMode("login")}
-                style={{
-                  ...styles.pill,
-                  ...(mode === "login" ? styles.pillOn : {}),
-                }}
+                style={{ ...styles.pill, ...(mode === "login" ? styles.pillOn : {}) }}
                 disabled={loading}
               >
-                {t.login}
+                Login
               </button>
               <button
                 type="button"
                 onClick={() => setMode("signup")}
-                style={{
-                  ...styles.pill,
-                  ...(mode === "signup" ? styles.pillOn : {}),
-                }}
+                style={{ ...styles.pill, ...(mode === "signup" ? styles.pillOn : {}) }}
                 disabled={loading}
               >
-                {t.signup}
+                Sign up
               </button>
             </div>
           </header>
@@ -300,27 +225,27 @@ export default function Auth({ hideLocalDock = false }) {
             onClick={loginWithMicrosoft}
             style={styles.msBtn}
             disabled={loading}
-            title={t.msSsoTitle}
+            title="Microsoft SSO via Supabase"
           >
             <span style={styles.msBtnRow}>
-              <span>{t.continueMs}</span>
+              <span>Continue with Microsoft</span>
               <MicrosoftIcon size={14} />
             </span>
           </button>
 
           <div style={styles.dividerRow}>
             <div style={styles.divider} />
-            <span style={styles.dividerText}>{t.or}</span>
+            <span style={styles.dividerText}>or</span>
             <div style={styles.divider} />
           </div>
 
           <form onSubmit={mode === "login" ? handleLogin : handleSignup} style={styles.form}>
             <label style={styles.label}>
-              {t.email}
+              Email
               <input
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder={t.emailPh}
+                placeholder="you@company.com"
                 type="email"
                 autoComplete="email"
                 style={styles.input}
@@ -329,47 +254,38 @@ export default function Auth({ hideLocalDock = false }) {
             </label>
 
             <label style={styles.label}>
-              {t.password}
+              Password
               <input
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder={t.passPh}
+                placeholder="••••••••"
                 type="password"
                 autoComplete={mode === "login" ? "current-password" : "new-password"}
                 style={styles.input}
                 required
               />
-              <span style={styles.help}>{t.minChars}</span>
+              <span style={styles.help}>Minimum 6 characters.</span>
             </label>
 
             <button type="submit" style={styles.primaryBtn} disabled={!canSubmit}>
-              {loading ? t.working : mode === "login" ? t.loginBtn : t.signupBtn}
+              {loading ? "Working..." : mode === "login" ? "Login" : "Create account"}
             </button>
           </form>
 
-          {msg ? <div style={styles.msgOk}>{msg}</div> : null}
-          {err ? <div style={styles.msgErr}>{err}</div> : null}
+          {msg && <div style={styles.msgOk}>{msg}</div>}
+          {err && <div style={styles.msgErr}>{err}</div>}
         </section>
       </div>
 
+      {/* Footer with divider + links */}
       <footer style={styles.footer}>
         <div style={styles.footerLine} />
         <div style={styles.footerLinks}>
-          <a
-            href="https://www.synercore.com.ph"
-            target="_blank"
-            rel="noreferrer"
-            style={styles.link}
-          >
+          <a href="https://www.synercore.com.ph" target="_blank" rel="noreferrer" style={styles.link}>
             synercore.com.ph
           </a>
           <span style={styles.dotSep}>•</span>
-          <a
-            href="https://www.sy3.com.ph"
-            target="_blank"
-            rel="noreferrer"
-            style={styles.link}
-          >
+          <a href="https://www.sy3.com.ph" target="_blank" rel="noreferrer" style={styles.link}>
             sy3.com.ph
           </a>
         </div>
@@ -379,69 +295,95 @@ export default function Auth({ hideLocalDock = false }) {
 }
 
 function makeStyles(isLight) {
-  // IMPORTANT: no "page background" here; SpaceShell provides the background
-  const text = "rgba(255,255,255,0.92)";
-  const border = "1px solid rgba(255,255,255,0.12)";
+  const bg = isLight
+    ? "radial-gradient(900px 500px at 20% 10%, rgba(120,119,198,0.18), transparent 60%), radial-gradient(900px 500px at 80% 20%, rgba(56,189,248,0.18), transparent 60%), rgba(248,250,252,1)"
+    : "radial-gradient(900px 500px at 20% 10%, rgba(120,119,198,0.18), transparent 60%), radial-gradient(900px 500px at 80% 20%, rgba(56,189,248,0.18), transparent 60%), rgba(10,10,12,1)";
 
-  const surface = isLight ? "rgba(255,255,255,0.07)" : "rgba(255,255,255,0.06)";
-  const inputBg = isLight ? "rgba(255,255,255,0.11)" : "rgba(0,0,0,0.28)";
-  const dividerColor = isLight ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.14)";
-  const pillOnBg = isLight ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.12)";
+  const text = isLight ? "rgba(10,10,12,0.92)" : "rgba(255,255,255,0.92)";
+  const glass = isLight ? "rgba(10,10,12,0.04)" : "rgba(255,255,255,0.06)";
+  const border = isLight ? "1px solid rgba(10,10,12,0.10)" : "1px solid rgba(255,255,255,0.12)";
 
   return {
-    container: {
-      width: "100%",
-      color: text,
+    page: {
+      minHeight: "100vh",
       position: "relative",
+      display: "grid",
+      placeItems: "center",
+      padding: 24,
+      background: bg,
+      color: text,
       fontFamily:
         'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif',
     },
 
-    localDock: {
+    topBar: {
       position: "absolute",
-      top: 0,
-      right: 0,
+      top: 16,
+      right: 16,
+      left: 16,
+      display: "flex",
+      justifyContent: "space-between",
       pointerEvents: "none",
     },
-    localDockPill: {
-      pointerEvents: "none",
+    topRight: {
+      display: "flex",
+      gap: 10,
+      alignItems: "center",
+      pointerEvents: "auto",
+    },
+    livePill: {
       display: "inline-flex",
       alignItems: "center",
-      gap: 10,
-      padding: "10px 12px",
+      gap: 8,
+      padding: "8px 12px",
       borderRadius: 999,
-      background: surface,
+      background: glass,
       border,
-      backdropFilter: "blur(14px)",
       fontSize: 12,
-      fontWeight: 900,
+      fontWeight: 800,
+      letterSpacing: 0.3,
     },
-    localDot: {
+    liveDot: {
       width: 8,
       height: 8,
       borderRadius: 999,
       background: "rgba(34,197,94,0.95)",
       boxShadow: "0 0 12px rgba(34,197,94,0.35)",
     },
-    localDockLabel: { letterSpacing: 0.25 },
-    localDockTime: { opacity: 0.8 },
+    liveTime: { opacity: 0.8, fontWeight: 800 },
+
+    themeBtn: {
+      padding: "8px 10px",
+      borderRadius: 12,
+      background: glass,
+      border,
+      color: "inherit",
+      cursor: "pointer",
+      fontWeight: 800,
+      fontSize: 12,
+    },
 
     shell: {
-      width: "min(1040px, 100%)",
-      margin: "0 auto",
+      width: "min(1000px, 100%)",
       display: "grid",
       gridTemplateColumns: "1fr 1fr",
-      gap: 22,
+      gap: 18,
       alignItems: "center",
     },
 
-    hero: { padding: 14 },
-    logoWrap: { display: "flex", justifyContent: "center", marginBottom: 16 },
+    hero: {
+      padding: 14,
+    },
+    logoWrap: {
+      display: "flex",
+      justifyContent: "center",
+      marginBottom: 16,
+    },
     logo: {
       maxWidth: 210,
       height: "auto",
       opacity: 0.98,
-      filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.35))",
+      filter: isLight ? "none" : "drop-shadow(0 8px 18px rgba(0,0,0,0.35))",
     },
 
     heroTitle: {
@@ -457,15 +399,18 @@ function makeStyles(isLight) {
       opacity: 0.78,
       textAlign: "left",
     },
-    heroNote: { marginTop: 14, fontSize: 12, opacity: 0.7 },
+    heroNote: {
+      marginTop: 14,
+      fontSize: 12,
+      opacity: 0.7,
+    },
 
     card: {
       borderRadius: 18,
       padding: 18,
-      background: surface,
+      background: glass,
       border,
-      boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
-      backdropFilter: "blur(14px)",
+      boxShadow: isLight ? "0 20px 60px rgba(0,0,0,0.10)" : "0 20px 60px rgba(0,0,0,0.35)",
     },
     cardHeader: { display: "flex", justifyContent: "flex-end", marginBottom: 12 },
 
@@ -473,9 +418,8 @@ function makeStyles(isLight) {
       display: "flex",
       padding: 4,
       borderRadius: 999,
-      background: surface,
+      background: glass,
       border,
-      backdropFilter: "blur(14px)",
     },
     pill: {
       border: "none",
@@ -484,23 +428,25 @@ function makeStyles(isLight) {
       borderRadius: 999,
       background: "transparent",
       color: "inherit",
-      opacity: 0.78,
+      opacity: 0.75,
       fontSize: 12,
       fontWeight: 800,
     },
-    pillOn: { background: pillOnBg, opacity: 1 },
+    pillOn: {
+      background: isLight ? "rgba(10,10,12,0.08)" : "rgba(255,255,255,0.12)",
+      opacity: 1,
+    },
 
     msBtn: {
       width: "100%",
       padding: "10px 12px",
       borderRadius: 12,
       border,
-      background: surface,
+      background: glass,
       color: "inherit",
       cursor: "pointer",
       fontWeight: 800,
       fontSize: 13,
-      backdropFilter: "blur(14px)",
     },
     msBtnRow: {
       display: "flex",
@@ -511,16 +457,16 @@ function makeStyles(isLight) {
     },
 
     dividerRow: { display: "flex", alignItems: "center", gap: 10, margin: "14px 0" },
-    divider: { height: 1, flex: 1, background: dividerColor },
+    divider: { height: 1, flex: 1, background: isLight ? "rgba(10,10,12,0.10)" : "rgba(255,255,255,0.14)" },
     dividerText: { fontSize: 12, opacity: 0.7 },
 
     form: { display: "grid", gap: 12 },
-    label: { display: "grid", gap: 6, fontSize: 12, opacity: 0.95 },
+    label: { display: "grid", gap: 6, fontSize: 12, opacity: 0.9 },
     input: {
       padding: "10px 12px",
       borderRadius: 12,
       border,
-      background: inputBg,
+      background: isLight ? "rgba(255,255,255,0.65)" : "rgba(0,0,0,0.25)",
       color: "inherit",
       outline: "none",
     },
@@ -555,39 +501,24 @@ function makeStyles(isLight) {
     },
 
     footer: {
-      marginTop: 18,
-      width: "min(720px, 100%)",
-      marginLeft: "auto",
-      marginRight: "auto",
-      background: surface,
+      position: "absolute",
+      bottom: 14,
+      left: 16,
+      right: 16,
+      width: "min(720px, calc(100% - 32px))",
+      margin: "0 auto",
+      background: glass,
       border,
       borderRadius: 14,
       padding: "10px 12px",
-      boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
-      backdropFilter: "blur(14px)",
+      boxShadow: isLight ? "0 20px 60px rgba(0,0,0,0.08)" : "0 20px 60px rgba(0,0,0,0.25)",
     },
-    footerLine: { height: 1, background: dividerColor, marginBottom: 8 },
-    footerLinks: {
-      display: "flex",
-      justifyContent: "center",
-      gap: 10,
-      fontSize: 12,
-      opacity: 0.88,
-      flexWrap: "wrap",
-    },
+    footerLine: { height: 1, background: isLight ? "rgba(10,10,12,0.10)" : "rgba(255,255,255,0.14)", marginBottom: 8 },
+    footerLinks: { display: "flex", justifyContent: "center", gap: 10, fontSize: 12, opacity: 0.85 },
     link: { color: "inherit", textDecoration: "none", fontWeight: 800 },
     dotSep: { opacity: 0.6 },
-  };
-}
 
-/* Responsive: stack hero + card on small screens */
-if (typeof document !== "undefined" && !document.getElementById("auth-responsive-style")) {
-  const s = document.createElement("style");
-  s.id = "auth-responsive-style";
-  s.textContent = `
-    @media (max-width: 980px) {
-      ._auth_shell_fix { grid-template-columns: 1fr !important; }
-    }
-  `;
-  document.head.appendChild(s);
+    // Responsive: stack on small screens
+    "@media": {}, // (inline styles can't do media queries; if needed, we can do a JS width check later)
+  };
 }

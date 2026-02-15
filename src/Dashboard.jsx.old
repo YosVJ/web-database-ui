@@ -1,0 +1,661 @@
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "./lib/supabaseClient";
+
+export default function Dashboard({ session }) {
+  const navigate = useNavigate();
+  const [selectedCompany, setSelectedCompany] = useState(null);
+
+  // Language preference
+  const [lang, setLang] = useState("en");
+  const [langSaving, setLangSaving] = useState(false);
+
+  // FIFO active request per company (DB-backed)
+  const [activeByCompany, setActiveByCompany] = useState({});
+  const [loadingActive, setLoadingActive] = useState(false);
+
+  const companies = useMemo(
+    () => [
+      { id: "synercore", name: "Synercore", desc: "Primary" },
+      { id: "sy3", name: "SY3 Energy", desc: "Energy Services" },
+      { id: "kes", name: "KES Prime", desc: "Engineering" },
+      { id: "gen3", name: "Gen3 Toll Packing", desc: "Packaging" },
+      { id: "philweld", name: "Philweld", desc: "Manufacturing" },
+      { id: "gemotra", name: "Gemotra", desc: "Electrical Services" },
+    ],
+    []
+  );
+
+  const theme = localStorage.getItem("theme") || "dark";
+
+  // Minimal dashboard translations
+  const TEXT = useMemo(
+    () => ({
+      en: {
+        welcome: "Welcome,",
+        chooseCompany: "Choose a company to continue",
+        signedInAs: "Signed in as",
+        logout: "Logout",
+        langLabel: "Language",
+        saving: "Saving…",
+        activeRequest: "Active Request",
+        view: "Open",
+        blocked: "Blocked",
+        due: "Due",
+        overdue: "Overdue",
+      },
+      tl: {
+        welcome: "Maligayang pagdating,",
+        chooseCompany: "Pumili ng kumpanya upang magpatuloy",
+        signedInAs: "Naka-sign in bilang",
+        logout: "Mag-logout",
+        langLabel: "Wika",
+        saving: "Sine-save…",
+        activeRequest: "Aktibong Request",
+        view: "Buksan",
+        blocked: "Naantala",
+        due: "Takdang oras",
+        overdue: "Lampas sa takdang oras",
+      },
+    }),
+    []
+  );
+
+  function t(key) {
+    return TEXT?.[lang]?.[key] ?? TEXT.en[key] ?? key;
+  }
+
+  // Load language from profiles (safe fallback to EN)
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadLanguage() {
+      if (!session?.user?.id) return;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("language")
+        .eq("id", session.user.id)
+        .maybeSingle();
+
+      if (cancelled) return;
+
+      if (!error && data?.language && (data.language === "en" || data.language === "tl")) {
+        setLang(data.language);
+      } else {
+        setLang("en");
+      }
+    }
+
+    loadLanguage();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.user?.id]);
+
+  async function setLanguage(nextLang) {
+    if (!session?.user?.id) {
+      setLang(nextLang);
+      return;
+    }
+
+    setLang(nextLang);
+    setLangSaving(true);
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ language: nextLang })
+      .eq("id", session.user.id);
+
+    setLangSaving(false);
+
+    if (error) {
+      console.error("Failed to update language:", error);
+      setLang("en");
+    }
+  }
+
+  // Load FIFO active PR per company from Supabase
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadFifoActiveRequests() {
+      setLoadingActive(true);
+
+      const { data, error } = await supabase
+        .from("purchase_requests")
+        .select(
+          "id, company_id, pr_no, status, next_actor, blocked_reason, due_at, created_at, updated_at"
+        )
+        .order("created_at", { ascending: true });
+
+      if (cancelled) return;
+
+      if (error) {
+        console.error("Failed to load purchase_requests:", error);
+        setActiveByCompany({});
+        setLoadingActive(false);
+        return;
+      }
+
+      const result = {};
+      for (const row of data || []) {
+        if (!row?.company_id) continue;
+
+        // Only skip CLOSED (we'll expand terminal statuses later)
+        if (String(row.status || "").toUpperCase() === "CLOSED") continue;
+
+        // FIFO: first open PR per company
+        if (!result[row.company_id]) {
+          result[row.company_id] = {
+            id: row.id,
+            prNo: row.pr_no,
+            status: row.status,
+            nextActor: row.next_actor,
+            updatedAt: row.updated_at,
+            dueAt: row.due_at,
+            blockedReason: row.blocked_reason,
+          };
+        }
+      }
+
+      setActiveByCompany(result);
+      setLoadingActive(false);
+    }
+
+    loadFifoActiveRequests();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Status -> % progress mapping (simple, clear)
+  function progressForStatus(status) {
+    const s = String(status || "").toUpperCase();
+
+    const map = {
+      DRAFT: 8,
+      COSTING_INPUTTED: 18,
+      FOR_GM_SELECTION: 28,
+      GM_SELECTED_SUPPLIER: 35,
+      FOR_DEPT_HEAD_APPROVAL: 42,
+      FOR_SCM_APPROVAL: 52,
+      APPROVED_FOR_PO: 60,
+      PO_CREATED: 70,
+      DELIVERY_SCHEDULED: 78,
+      RECEIVED_PARTIAL: 84,
+      RECEIVED_FULL: 90,
+      ISSUED_PARTIAL: 94,
+      ISSUED_FULL: 98,
+      CLOSED: 100,
+
+      INTERNATIONAL_SUPPLIER: 40,
+      DELIVERY_TERMS_NEGOTIATION: 45,
+      PAYMENT_PROCESSING: 65,
+      LOW_URGENCY_DEPRIORITIZED: 35,
+      AWAITING_APPROVER: 30,
+      WORKFLOW_CHANGED: 25,
+      INFO_GAP: 20,
+    };
+
+    return map[s] ?? 15;
+  }
+
+  function labelForStatus(status) {
+    const s = String(status || "").toUpperCase();
+
+    const map = {
+      DRAFT: "Draft",
+      COSTING_INPUTTED: "Costing prepared",
+      FOR_GM_SELECTION: "For GM supplier selection",
+      GM_SELECTED_SUPPLIER: "Supplier selected",
+      FOR_DEPT_HEAD_APPROVAL: "For Dept Head approval",
+      FOR_SCM_APPROVAL: "For SCM approval",
+      APPROVED_FOR_PO: "Approved for PO",
+      PO_CREATED: "PO created",
+      DELIVERY_SCHEDULED: "Delivery scheduled",
+      RECEIVED_PARTIAL: "Received (partial)",
+      RECEIVED_FULL: "Received (full)",
+      ISSUED_PARTIAL: "Issued (partial)",
+      ISSUED_FULL: "Issued (full)",
+      CLOSED: "Closed",
+
+      INTERNATIONAL_SUPPLIER: "International supplier",
+      DELIVERY_TERMS_NEGOTIATION: "Delivery terms negotiation",
+      PAYMENT_PROCESSING: "Payment processing",
+      LOW_URGENCY_DEPRIORITIZED: "Deprioritized (low urgency)",
+      AWAITING_APPROVER: "Awaiting approver",
+      WORKFLOW_CHANGED: "Workflow changed",
+      INFO_GAP: "Info/coordination gap",
+    };
+
+    return map[s] ?? "In progress";
+  }
+
+  function formatAge(iso) {
+    if (!iso) return "";
+    const ms = Date.now() - new Date(iso).getTime();
+    const hrs = Math.floor(ms / (1000 * 60 * 60));
+    if (hrs < 24) return `${hrs}h`;
+    const days = Math.floor(hrs / 24);
+    return `${days}d`;
+  }
+
+  function dueChip(dueAt) {
+    if (!dueAt) return null;
+    const dueMs = new Date(dueAt).getTime() - Date.now();
+    const absHrs = Math.max(0, Math.floor(Math.abs(dueMs) / (1000 * 60 * 60)));
+    if (dueMs < 0) return { kind: "overdue", text: `${t("overdue")} ${absHrs}h` };
+    return { kind: "due", text: `${t("due")} ${absHrs}h` };
+  }
+
+  // SVG Donut (no dependencies)
+  function Donut({ percent, size = 56 }) {
+    const stroke = 8;
+    const r = (size - stroke) / 2;
+    const c = 2 * Math.PI * r;
+    const clamped = Math.max(0, Math.min(100, percent));
+    const dash = (clamped / 100) * c;
+    const gap = c - dash;
+
+    const trackColor = theme === "light" ? "rgba(10,10,12,0.10)" : "rgba(255,255,255,0.12)";
+    const ringColor = theme === "light" ? "rgba(10,10,12,0.75)" : "rgba(255,255,255,0.88)";
+
+    return (
+      <div style={{ position: "relative", width: size, height: size }}>
+        <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+          <circle cx={size / 2} cy={size / 2} r={r} stroke={trackColor} strokeWidth={stroke} fill="none" />
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={r}
+            stroke={ringColor}
+            strokeWidth={stroke}
+            fill="none"
+            strokeLinecap="round"
+            strokeDasharray={`${dash} ${gap}`}
+          />
+        </svg>
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontWeight: 900,
+            fontSize: 13,
+            letterSpacing: "-0.2px",
+          }}
+        >
+          {Math.round(clamped)}%
+        </div>
+      </div>
+    );
+  }
+
+  async function handleLogout() {
+    try {
+      await supabase.auth.signOut();
+    } finally {
+      navigate("/login", { replace: true });
+      window.history.replaceState({}, "", "/login");
+    }
+  }
+
+  const openRequest = (e, companyId) => {
+    e.stopPropagation();
+    const req = activeByCompany?.[companyId];
+    console.log("Open FIFO request:", { companyId, prId: req?.id, prNo: req?.prNo });
+
+    // Next step (later): navigate to details page
+    // if (req?.id) navigate(`/company/${companyId}/requests/${req.id}`);
+  };
+
+  const displayName =
+    session?.user?.user_metadata?.full_name || session?.user?.email || "User";
+
+  // Styles
+  const pageStyle = {
+    minHeight: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "24px",
+    background:
+      theme === "light"
+        ? "radial-gradient(900px 500px at 20% 10%, rgba(99,102,241,0.14), transparent 60%), radial-gradient(900px 500px at 80% 20%, rgba(56,189,248,0.14), transparent 60%), rgba(245,246,248,1)"
+        : "radial-gradient(900px 500px at 20% 10%, rgba(120,119,198,0.18), transparent 60%), radial-gradient(900px 500px at 80% 20%, rgba(56,189,248,0.18), transparent 60%), rgba(10,10,12,1)",
+    color: theme === "light" ? "rgba(10,10,12,0.92)" : "rgba(255,255,255,0.92)",
+    fontFamily:
+      'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif',
+  };
+
+  const containerStyle = { width: "100%", maxWidth: 820, textAlign: "center" };
+  const headerStyle = { marginBottom: "18px" };
+
+  const topBarStyle = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 14,
+  };
+
+  const langPillStyle = {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "8px 10px",
+    borderRadius: "10px",
+    border: theme === "light" ? "1px solid rgba(10,10,12,0.12)" : "1px solid rgba(255,255,255,0.12)",
+    background: theme === "light" ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.06)",
+    fontSize: "12px",
+    fontWeight: 700,
+  };
+
+  const langBtnStyle = (active) => ({
+    padding: "6px 10px",
+    borderRadius: "10px",
+    border: theme === "light" ? "1px solid rgba(10,10,12,0.12)" : "1px solid rgba(255,255,255,0.12)",
+    background: active
+      ? theme === "light"
+        ? "rgba(10,10,12,0.08)"
+        : "rgba(255,255,255,0.14)"
+      : "transparent",
+    color: "inherit",
+    cursor: "pointer",
+    fontSize: "12px",
+    fontWeight: 800,
+    opacity: langSaving ? 0.6 : 1,
+  });
+
+  const welcomeStyle = {
+    fontSize: "48px",
+    fontWeight: 900,
+    letterSpacing: "-0.5px",
+    margin: "0 0 8px 0",
+    display: "flex",
+    justifyContent: "center",
+    gap: "12px",
+    flexWrap: "wrap",
+  };
+
+  const subtextStyle = { 
+    fontSize: "16px", 
+    opacity: 0.8, 
+    margin: "8px 0 0 0",
+    color: "rgba(200,220,255,0.85)",
+    fontWeight: 500,
+    letterSpacing: "0.2px",
+  };
+
+  const gridStyle = {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+    gap: "16px",
+    marginTop: "14px",
+    marginBottom: "26px",
+  };
+
+  const baseCardStyle = {
+    padding: "18px",
+    borderRadius: "16px",
+    border: theme === "light" ? "1px solid rgba(10,10,12,0.12)" : "1px solid rgba(255,255,255,0.12)",
+    background: theme === "light" ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.06)",
+    backdropFilter: "blur(10px)",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    textAlign: "left",
+  };
+
+  const selectedCardStyle = {
+    ...baseCardStyle,
+    border: theme === "light" ? "1px solid rgba(10,10,12,0.18)" : "1px solid rgba(255,255,255,0.18)",
+    background: theme === "light" ? "rgba(255,255,255,0.75)" : "rgba(255,255,255,0.10)",
+  };
+
+  const footerDividerStyle = {
+    height: "1px",
+    background: theme === "light" ? "rgba(10,10,12,0.12)" : "rgba(255,255,255,0.14)",
+    marginBottom: "14px",
+  };
+
+  const footerStyle = { fontSize: "12px", opacity: 0.7, marginBottom: "8px" };
+
+  const logoutBtnStyle = {
+    marginTop: "10px",
+    padding: "8px 12px",
+    borderRadius: "10px",
+    border: theme === "light" ? "1px solid rgba(10,10,12,0.12)" : "1px solid rgba(255,255,255,0.12)",
+    background: theme === "light" ? "rgba(10,10,12,0.06)" : "rgba(255,255,255,0.08)",
+    color: "inherit",
+    cursor: "pointer",
+    fontSize: "12px",
+    fontWeight: 800,
+    transition: "all 0.2s ease",
+  };
+
+  const chipStyle = (kind) => {
+    const base = {
+      display: "inline-flex",
+      alignItems: "center",
+      padding: "6px 10px",
+      borderRadius: 999,
+      fontSize: 11,
+      fontWeight: 900,
+      letterSpacing: "0.2px",
+      border: theme === "light" ? "1px solid rgba(10,10,12,0.12)" : "1px solid rgba(255,255,255,0.12)",
+      background: theme === "light" ? "rgba(10,10,12,0.05)" : "rgba(255,255,255,0.08)",
+      opacity: 0.95,
+      whiteSpace: "nowrap",
+    };
+
+    if (kind === "overdue") {
+      return { ...base, background: theme === "light" ? "rgba(255,0,0,0.08)" : "rgba(255,0,0,0.14)" };
+    }
+    if (kind === "blocked") {
+      return { ...base, background: theme === "light" ? "rgba(255,165,0,0.10)" : "rgba(255,165,0,0.14)" };
+    }
+    if (kind === "due") {
+      return { ...base, background: theme === "light" ? "rgba(56,189,248,0.10)" : "rgba(56,189,248,0.14)" };
+    }
+    return base;
+  };
+
+  const handleCardClick = (company) => {
+    setSelectedCompany(company);
+    console.log("Selected company:", company);
+  };
+
+  return (
+    <div style={pageStyle}>
+      <div style={containerStyle}>
+        {/* Top Bar */}
+        <div style={topBarStyle}>
+          <div style={{ fontSize: 12, opacity: 0.8 }}>
+            {t("langLabel")}: <strong>{lang === "en" ? "EN" : "TL"}</strong>
+            {langSaving ? <span style={{ marginLeft: 8 }}>{t("saving")}</span> : null}
+          </div>
+
+          <div style={langPillStyle}>
+            <button
+              type="button"
+              style={langBtnStyle(lang === "en")}
+              disabled={langSaving}
+              onClick={() => setLanguage("en")}
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              style={langBtnStyle(lang === "tl")}
+              disabled={langSaving}
+              onClick={() => setLanguage("tl")}
+            >
+              TL
+            </button>
+          </div>
+        </div>
+
+        {/* Welcome */}
+        <div style={headerStyle}>
+          <h1 style={welcomeStyle}>
+            <span style={{ color: \"rgba(255,200,124,0.95)\" }}>{t(\"welcome\")}</span>
+            <span style={{ 
+              fontWeight: 900,
+              color: \"rgba(0,206,255,0.95)\",
+              textShadow: \"0 0 20px rgba(129,96,255,0.4), 0 0 10px rgba(0,206,255,0.2)\",
+            }}>{displayName}</span>
+          </h1>
+          <p style={subtextStyle}>{t("chooseCompany")}</p>
+        </div>
+
+        {/* Company Cards */}
+        <div style={gridStyle}>
+          {companies.map((company) => {
+            const isSelected = selectedCompany?.id === company.id;
+            const req = activeByCompany?.[company.id];
+
+            const pct = req ? progressForStatus(req.status) : 0;
+            const statusLabel = req ? labelForStatus(req.status) : "No active request";
+            const due = req?.dueAt ? dueChip(req.dueAt) : null;
+            const isBlocked = !!req?.blockedReason;
+
+            // One chip only: blocked > due/overdue
+            const chip = isBlocked
+              ? { kind: "blocked", text: `${t("blocked")}: ${labelForStatus(req.blockedReason)}` }
+              : due
+              ? { kind: due.kind, text: due.text }
+              : null;
+
+            return (
+              <div
+                key={company.id}
+                style={isSelected ? selectedCardStyle : baseCardStyle}
+                onClick={() => handleCardClick(company)}
+              >
+                {/* Header row */}
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 14 }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ 
+                      fontSize: 18, 
+                      fontWeight: 900, 
+                      marginBottom: 2,
+                      color: "rgba(129,96,255,0.95)",
+                      textShadow: "0 0 8px rgba(129,96,255,0.3)",
+                    }}>
+                      {company.name}
+                    </div>
+                    <div style={{ 
+                      fontSize: 13, 
+                      opacity: 0.75,
+                      color: "rgba(0,206,255,0.8)",
+                      fontWeight: 600,
+                    }}>{company.desc}</div>
+                  </div>
+
+                  <div style={{ flexShrink: 0 }}>
+                    <Donut percent={pct} size={56} />
+                  </div>
+                </div>
+
+                {/* FIFO Active Request block */}
+                <div
+                  style={{
+                    marginTop: 12,
+                    padding: "12px 12px",
+                    borderRadius: 14,
+                    border: theme === "light" ? "1px solid rgba(10,10,12,0.10)" : "1px solid rgba(255,255,255,0.10)",
+                    background: theme === "light" ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.05)",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}>
+                    <div style={{ 
+                      fontSize: 12, 
+                      opacity: 0.9, 
+                      fontWeight: 900, 
+                      letterSpacing: "0.3px",
+                      color: "rgba(255,200,124,0.9)",
+                    }}>
+                      {t("activeRequest")}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={(e) => openRequest(e, company.id)}
+                      style={{
+                        padding: "6px 10px",
+                        borderRadius: 999,
+                        border: theme === "light" ? "1px solid rgba(10,10,12,0.12)" : "1px solid rgba(255,255,255,0.12)",
+                        background: "transparent",
+                        color: "inherit",
+                        cursor: "pointer",
+                        fontSize: 11,
+                        fontWeight: 900,
+                        opacity: 0.9,
+                      }}
+                      title="Open FIFO request"
+                    >
+                      {t("view")}
+                    </button>
+                  </div>
+
+                  <div style={{ marginTop: 8, display: "flex", justifyContent: "space-between", gap: 12 }}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ 
+                        fontSize: 15, 
+                        fontWeight: 900, 
+                        letterSpacing: "-0.1px",
+                        color: "rgba(255,255,255,0.98)",
+                      }}>
+                        {loadingActive ? "Loading…" : (req?.prNo ?? "—")}
+                        <span style={{ opacity: 0.65, fontWeight: 800, marginLeft: 8, fontSize: 11 }}>
+                          Updated {formatAge(req?.updatedAt)}
+                        </span>
+                      </div>
+
+                      <div style={{ 
+                        fontSize: 13, 
+                        opacity: 0.9, 
+                        marginTop: 3, 
+                        lineHeight: 1.4,
+                        color: "rgba(220,240,255,1)",
+                        fontWeight: 600,
+                        letterSpacing: "0.2px",
+                      }}>
+                        {statusLabel}
+                        {req?.nextActor ? (
+                          <span style={{ opacity: 0.8, fontWeight: 700 }}> • <span style={{ color: "rgba(255,200,124,0.95)" }}>Next: {req.nextActor}</span></span>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    {chip ? (
+                      <div style={chipStyle(chip.kind)} title={chip.text}>
+                        {chip.text}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Footer */}
+        <div style={footerDividerStyle} />
+        <div style={footerStyle}>
+          {t("signedInAs")} <span style={{ fontWeight: 800 }}>{session?.user?.email}</span>
+        </div>
+
+        <button style={logoutBtnStyle} onClick={handleLogout}>
+          {t("logout")}
+        </button>
+      </div>
+    </div>
+  );
+}

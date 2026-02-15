@@ -37,3 +37,78 @@ footer {
   width: calc(100% - 48px);
   max-width: 560px;
 }
+/* Floating motion effect for cards */
+@keyframes floaty {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* Pulse effect during drag */
+@keyframes dragPulse {
+  0%, 100% {
+    transform: scale(1.05);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+/* Aura glow during drag */
+@keyframes auraGlow {
+  0%, 100% {
+    opacity: 0.5;
+    filter: blur(8px);
+  }
+  50% {
+    opacity: 1;
+    filter: blur(4px);
+  }
+}
+
+/* Neon glow on donut ring */
+@keyframes neonGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 3px rgba(0,255,255,0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 12px rgba(0,255,255,0.8));
+  }
+}
+
+/* Neon flicker on percentage text */
+@keyframes neonFlicker {
+  0%, 100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Blink alert for overdue items */
+@keyframes blinkAlert {
+  0%, 100% {
+    background: rgba(255,0,0,0.15);
+    box-shadow: 0 0 8px rgba(255,0,0,0.3), inset 0 0 4px rgba(255,0,0,0.1);
+  }
+  50% {
+    background: rgba(255,0,0,0.25);
+    box-shadow: 0 0 16px rgba(255,0,0,0.5), inset 0 0 8px rgba(255,0,0,0.2);
+  }
+}
+
+/* Blink glow for due items */
+@keyframes blinkGlow {
+  0%, 100% {
+    background: rgba(56,189,248,0.15);
+    box-shadow: 0 0 8px rgba(56,189,248,0.3);
+  }
+  50% {
+    background: rgba(56,189,248,0.25);
+    box-shadow: 0 0 16px rgba(56,189,248,0.5);
+  }
+}
