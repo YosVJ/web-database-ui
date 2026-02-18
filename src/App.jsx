@@ -1,6 +1,7 @@
 // src/App.jsx
 import React from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import LoginPage from "./pages/LoginPage.jsx";
 import Dashboard from "./Dashboard.jsx";
 import RequireAuth from "./routes/RequireAuth.jsx";
@@ -63,6 +64,7 @@ export default function App() {
   return (
     <LangProvider>
       <AppContent />
+      <SpeedInsights />
     </LangProvider>
   );
 }
