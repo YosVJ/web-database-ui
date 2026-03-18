@@ -206,18 +206,6 @@ Security is implemented using:
 
 ---
 
-# 📸 Screenshots
-
-(Add screenshots once UI stabilizes)
-
-```
-/screenshots/login.png
-/screenshots/dashboard.png
-/screenshots/purchase-request.png
-```
-
----
-
 # 🧠 Future Plans
 
 Planned system modules:
