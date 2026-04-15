@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { supabase } from "../lib/supabaseClient"; // TopBar is in src/ui, so go up one
+import { supabase } from "../lib/supabaseClient";
+import ThemeToggle from "./ThemeToggle";
+import GlassClock from "./GlassClock";
 
 function formatTime12h(date) {
   return date.toLocaleTimeString([], {
@@ -14,21 +16,17 @@ export default function TopBar({
   onLangChange,
   langSaving = false,
   onLogout,
-
-  // ✅ NEW: controlled theme from App
   theme = "dark",
   onToggleTheme,
 }) {
   const [now, setNow] = useState(() => new Date());
   const [session, setSession] = useState(null);
 
-  // clock tick
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
 
-  // session (to decide whether to show Profile/Logout)
   useEffect(() => {
     let mounted = true;
 
@@ -48,47 +46,39 @@ export default function TopBar({
   }, []);
 
   const timeText = useMemo(() => formatTime12h(now), [now]);
-
   const isEN = lang === "en";
   const isTL = lang === "tl";
+  const isDark = theme === "dark";
 
   const setLangSafe = (next) => {
     if (typeof onLangChange === "function") onLangChange(next);
   };
 
-  const isDark = theme === "dark";
-
   return (
     <div style={styles.wrap} aria-label="Top bar">
-      <div style={styles.dock}>
-        {/* Time pill */}
-        <div style={styles.pill} title="Local time">
-          <span style={styles.timeText}>{timeText}</span>
-        </div>
+      <div style={{ ...styles.dock, ...(isDark ? styles.dockDark : styles.dockLight) }}>
+        <GlassClock timeText={timeText} theme={theme} />
 
-        {/* LIVE pill */}
-        <div style={{ ...styles.pill, ...styles.livePill }} title="Status: Live">
+        <div style={{ ...styles.pill, ...styles.livePill, ...(isDark ? styles.pillDark : styles.pillLight) }} title="Status: Live">
           <span style={styles.liveDot} />
-          <span style={styles.liveLabel}>LIVE</span>
+          <span style={{ ...styles.liveLabel, ...(isDark ? styles.liveLabelDark : styles.liveLabelLight) }}>LIVE</span>
         </div>
 
-        {/* Theme toggle (controlled) */}
-        <button
-          type="button"
-          onClick={() => (typeof onToggleTheme === "function" ? onToggleTheme() : null)}
-          style={styles.btn}
-          title="Toggle theme"
-        >
-          {isDark ? "Dark" : "Light"}
-        </button>
+        <ThemeToggle theme={theme} onToggle={onToggleTheme} />
 
-        {/* Language toggle */}
-        <div style={styles.langGroup} title="Language">
+        <div
+          style={{
+            ...styles.langGroup,
+            ...(isDark ? styles.groupDark : styles.groupLight),
+          }}
+          title="Language"
+        >
           <button
             type="button"
             onClick={() => setLangSafe("en")}
             style={{
               ...styles.langBtn,
+              ...(isDark ? styles.langBtnDark : styles.langBtnLight),
               ...(isEN ? styles.langOn : null),
               opacity: langSaving ? 0.7 : 1,
               cursor: langSaving ? "not-allowed" : "pointer",
@@ -102,6 +92,7 @@ export default function TopBar({
             onClick={() => setLangSafe("tl")}
             style={{
               ...styles.langBtn,
+              ...(isDark ? styles.langBtnDark : styles.langBtnLight),
               ...(isTL ? styles.langOn : null),
               opacity: langSaving ? 0.7 : 1,
               cursor: langSaving ? "not-allowed" : "pointer",
@@ -112,15 +103,24 @@ export default function TopBar({
           </button>
         </div>
 
-        {/* Only show after login */}
         {session ? (
           <>
-            <button type="button" style={styles.profileBtn} title="Profile (coming soon)" disabled>
-              <span style={styles.avatar}>U</span>
+            <button
+              type="button"
+              style={{ ...styles.profileBtn, ...(isDark ? styles.pillDark : styles.pillLight) }}
+              title="Profile (coming soon)"
+              disabled
+            >
+              <span style={{ ...styles.avatar, ...(isDark ? styles.avatarDark : styles.avatarLight) }}>U</span>
               <span style={styles.profileText}>Profile</span>
             </button>
 
-            <button type="button" onClick={onLogout} style={styles.logoutBtn} title="Logout">
+            <button
+              type="button"
+              onClick={onLogout}
+              style={{ ...styles.logoutBtn, ...(isDark ? styles.pillDark : styles.pillLight) }}
+              title="Logout"
+            >
               Logout
             </button>
           </>
@@ -145,10 +145,19 @@ const styles = {
     gap: 10,
     padding: "10px 10px",
     borderRadius: 18,
+    backdropFilter: "blur(14px)",
+    WebkitBackdropFilter: "blur(14px)",
+    transition: "background 320ms ease, border-color 320ms ease, box-shadow 320ms ease",
+  },
+  dockDark: {
     border: "1px solid rgba(255,255,255,0.14)",
     background: "rgba(10,10,14,0.40)",
-    backdropFilter: "blur(14px)",
     boxShadow: "0 18px 70px rgba(0,0,0,0.55)",
+  },
+  dockLight: {
+    border: "1px solid rgba(22,45,93,0.14)",
+    background: "rgba(241,246,255,0.45)",
+    boxShadow: "0 14px 44px rgba(37,65,112,0.17)",
   },
 
   pill: {
@@ -157,16 +166,17 @@ const styles = {
     gap: 8,
     padding: "8px 12px",
     borderRadius: 999,
+    transition: "background 320ms ease, border-color 320ms ease, color 320ms ease",
+  },
+  pillDark: {
     border: "1px solid rgba(255,255,255,0.14)",
     background: "rgba(255,255,255,0.06)",
+    color: "rgba(255,255,255,0.9)",
   },
-
-  timeText: {
-    fontFamily: "Arial, Helvetica, sans-serif",
-    fontSize: 12,
-    fontWeight: 900,
-    letterSpacing: 0.2,
-    color: "rgba(255,255,255,0.92)",
+  pillLight: {
+    border: "1px solid rgba(22,45,93,0.16)",
+    background: "rgba(255,255,255,0.54)",
+    color: "rgba(22,45,93,0.88)",
   },
 
   livePill: {
@@ -185,39 +195,49 @@ const styles = {
     fontSize: 12,
     fontWeight: 900,
     letterSpacing: 0.3,
+    transition: "color 240ms ease, text-shadow 240ms ease",
+  },
+  liveLabelDark: {
     color: "rgba(220,255,235,0.95)",
+    textShadow: "0 0 10px rgba(34,197,94,0.2)",
+  },
+  liveLabelLight: {
+    color: "rgba(16,80,47,0.92)",
+    textShadow: "0 0 8px rgba(34,197,94,0.16)",
   },
 
-  btn: {
-    padding: "8px 10px",
-    borderRadius: 12,
+  groupDark: {
     border: "1px solid rgba(255,255,255,0.14)",
     background: "rgba(255,255,255,0.06)",
-    color: "rgba(255,255,255,0.90)",
-    fontWeight: 900,
-    fontSize: 12,
-    cursor: "pointer",
   },
-
+  groupLight: {
+    border: "1px solid rgba(22,45,93,0.16)",
+    background: "rgba(255,255,255,0.54)",
+  },
   langGroup: {
     display: "inline-flex",
     borderRadius: 14,
-    border: "1px solid rgba(255,255,255,0.14)",
-    background: "rgba(255,255,255,0.06)",
     overflow: "hidden",
+    transition: "background 320ms ease, border-color 320ms ease",
   },
   langBtn: {
     padding: "8px 10px",
     border: "none",
-    background: "transparent",
-    color: "rgba(255,255,255,0.80)",
     fontWeight: 900,
     fontSize: 12,
+    background: "transparent",
+    transition: "background 240ms ease, color 240ms ease",
+  },
+  langBtnDark: {
+    color: "rgba(255,255,255,0.8)",
+  },
+  langBtnLight: {
+    color: "rgba(22,45,93,0.82)",
   },
   langOn: {
     background: "rgba(0,206,255,0.12)",
-    color: "rgba(220,250,255,0.95)",
     boxShadow: "inset 0 0 0 1px rgba(0,206,255,0.22)",
+    color: "rgba(220,250,255,0.95)",
   },
 
   profileBtn: {
@@ -226,9 +246,6 @@ const styles = {
     gap: 8,
     padding: "8px 10px",
     borderRadius: 999,
-    border: "1px solid rgba(255,255,255,0.14)",
-    background: "rgba(255,255,255,0.06)",
-    color: "rgba(255,255,255,0.70)",
     fontWeight: 900,
     fontSize: 12,
     cursor: "not-allowed",
@@ -239,27 +256,31 @@ const styles = {
     borderRadius: 999,
     display: "grid",
     placeItems: "center",
-    background: "rgba(255,255,255,0.10)",
-    border: "1px solid rgba(255,255,255,0.14)",
     fontWeight: 900,
     fontSize: 12,
+    transition: "background 240ms ease, border-color 240ms ease, color 240ms ease",
+  },
+  avatarDark: {
+    background: "rgba(255,255,255,0.10)",
+    border: "1px solid rgba(255,255,255,0.14)",
     color: "rgba(255,255,255,0.85)",
+  },
+  avatarLight: {
+    background: "rgba(255,255,255,0.82)",
+    border: "1px solid rgba(22,45,93,0.18)",
+    color: "rgba(22,45,93,0.9)",
   },
   profileText: { opacity: 0.85 },
 
   logoutBtn: {
     padding: "8px 12px",
     borderRadius: 12,
-    border: "1px solid rgba(255,255,255,0.14)",
-    background: "rgba(255,255,255,0.06)",
-    color: "rgba(255,255,255,0.92)",
     fontWeight: 900,
     fontSize: 12,
     cursor: "pointer",
   },
 };
 
-// inject keyframes once
 if (typeof document !== "undefined" && !document.getElementById("topbar-keyframes")) {
   const s = document.createElement("style");
   s.id = "topbar-keyframes";
