@@ -30,6 +30,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
   const [draggingId, setDraggingId] = useState(null);
 
   const theme = (localStorage.getItem("theme") || "dark").toLowerCase();
+  const isLight = theme === "light";
 
   const NEON_PRESET = "cyber";
   const NEON = {
@@ -344,6 +345,24 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
   }
 
   function accentFor(company) {
+    if (isLight) {
+      switch (company.accent) {
+        case "cyan":
+          return { ring: "rgba(86,146,217,0.50)", glow: "rgba(118,170,235,0.22)", text: "rgba(26,84,150,0.96)" };
+        case "green":
+          return { ring: "rgba(78,153,142,0.50)", glow: "rgba(116,180,170,0.20)", text: "rgba(32,103,94,0.96)" };
+        case "amber":
+          return { ring: "rgba(188,146,82,0.50)", glow: "rgba(211,174,116,0.20)", text: "rgba(121,86,36,0.96)" };
+        case "magenta":
+          return { ring: "rgba(158,110,171,0.50)", glow: "rgba(185,136,198,0.20)", text: "rgba(106,64,121,0.96)" };
+        case "orange":
+          return { ring: "rgba(199,134,74,0.50)", glow: "rgba(222,158,99,0.20)", text: "rgba(118,72,27,0.96)" };
+        case "purple":
+        default:
+          return { ring: "rgba(105,115,197,0.50)", glow: "rgba(137,148,222,0.20)", text: "rgba(55,68,152,0.96)" };
+      }
+    }
+
     switch (company.accent) {
       case "cyan":
         return { ring: "rgba(0,206,255,0.80)", glow: "rgba(0,206,255,0.45)", text: "rgba(0,242,255,0.99)" };
@@ -632,10 +651,18 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
           position: "relative",
           borderRadius: 18,
           padding: 16,
-          border: "1px solid rgba(255,255,255,0.10)",
-          background: "rgba(255,255,255,0.04)",
-          backdropFilter: "blur(14px)",
-          boxShadow: isDragging ? "0 26px 110px rgba(0,0,0,0.72)" : "0 18px 70px rgba(0,0,0,0.50)",
+          border: isLight ? "1px solid rgba(122,150,188,0.34)" : "1px solid rgba(255,255,255,0.10)",
+          background: isLight
+            ? "linear-gradient(155deg, rgba(247,252,255,0.93), rgba(230,242,255,0.88))"
+            : "rgba(255,255,255,0.04)",
+          backdropFilter: isLight ? "blur(8px)" : "blur(14px)",
+          boxShadow: isDragging
+            ? isLight
+              ? "0 14px 38px rgba(70,102,152,0.28)"
+              : "0 26px 110px rgba(0,0,0,0.72)"
+            : isLight
+            ? "0 8px 24px rgba(72,103,150,0.16)"
+            : "0 18px 70px rgba(0,0,0,0.50)",
           overflow: "visible",
           transform: "translateZ(0)",
           willChange: "transform",
@@ -650,10 +677,12 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
             inset: 0,
             borderRadius: 18,
             pointerEvents: "none",
-            boxShadow: `inset 0 0 0 1px ${ring},
+            boxShadow: isLight
+              ? `inset 0 0 0 1px ${ring}`
+              : `inset 0 0 0 1px ${ring},
                         0 0 ${NP.edgeGlow1}px ${glow},
                         0 0 ${NP.edgeGlow2}px ${glow}`,
-            opacity: NP.edgeOpacity,
+            opacity: isLight ? 0.82 : NP.edgeOpacity,
           }}
         />
 
@@ -665,14 +694,21 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                 fontWeight: 900,
                 marginBottom: 2,
                 color: accent.text,
-                textShadow: `0 0 ${NP.textGlow1}px ${glow}, 0 0 ${NP.textGlow2}px ${glow}`,
+                textShadow: isLight ? "none" : `0 0 ${NP.textGlow1}px ${glow}, 0 0 ${NP.textGlow2}px ${glow}`,
                 fontFamily: 'Arial, "Helvetica Neue", Helvetica, sans-serif',
                 letterSpacing: "0.1px",
               }}
             >
               {company.name}
             </div>
-            <div style={{ fontSize: 13, opacity: 0.78, color: "rgba(200,220,255,0.85)", fontWeight: 600 }}>
+            <div
+              style={{
+                fontSize: 13,
+                opacity: isLight ? 0.84 : 0.78,
+                color: isLight ? "rgba(88,114,148,0.92)" : "rgba(200,220,255,0.85)",
+                fontWeight: 600,
+              }}
+            >
               {company.desc}
             </div>
           </div>
@@ -689,14 +725,14 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                 height: 38,
                 borderRadius: 12,
                 border: "1px solid rgba(255,255,255,0.12)",
-                background: "rgba(255,255,255,0.06)",
-                color: "rgba(255,255,255,0.85)",
+                background: isLight ? "rgba(255,255,255,0.82)" : "rgba(255,255,255,0.06)",
+                color: isLight ? "rgba(43,67,102,0.88)" : "rgba(255,255,255,0.85)",
                 cursor: isDragging ? "grabbing" : "grab",
                 display: "grid",
                 placeItems: "center",
                 fontWeight: 900,
                 userSelect: "none",
-                boxShadow: `0 0 14px ${glow}`,
+                boxShadow: isLight ? "0 2px 8px rgba(71,101,149,0.14)" : `0 0 14px ${glow}`,
                 touchAction: "none",
               }}
             >
@@ -711,8 +747,8 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
             padding: "12px 12px",
             borderRadius: 14,
             border: `1px solid ${ring}`,
-            background: "rgba(255,255,255,0.03)",
-            boxShadow: `0 0 18px ${glow}`,
+            background: isLight ? "rgba(244,251,255,0.82)" : "rgba(255,255,255,0.03)",
+            boxShadow: isLight ? "0 6px 18px rgba(74,104,150,0.12)" : `0 0 18px ${glow}`,
             minHeight: 118,
           }}
         >
@@ -723,7 +759,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                 opacity: 0.92,
                 fontWeight: 900,
                 letterSpacing: "0.3px",
-                color: "rgba(255,200,124,0.90)",
+                color: isLight ? "rgba(110,124,152,0.92)" : "rgba(255,200,124,0.90)",
                 userSelect: "none",
               }}
             >
@@ -746,7 +782,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                 fontSize: 11,
                 fontWeight: 900,
                 opacity: 0.95,
-                textShadow: `0 0 ${NP.textGlow1}px ${glow}`,
+                textShadow: isLight ? "none" : `0 0 ${NP.textGlow1}px ${glow}`,
                 userSelect: "none",
               }}
               title="Open FIFO request"
@@ -757,7 +793,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
 
           <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "start" }}>
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 15, fontWeight: 900, color: "rgba(255,255,255,0.98)", lineHeight: 1.2 }}>
+              <div style={{ fontSize: 15, fontWeight: 900, color: isLight ? "rgba(38,60,92,0.96)" : "rgba(255,255,255,0.98)", lineHeight: 1.2 }}>
                 {loadingActive && !demoMode ? "Loading…" : effectiveReq?.prNo ?? "—"}
               </div>
 
@@ -771,9 +807,9 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                   borderRadius: 999,
                   fontSize: 11,
                   fontWeight: 900,
-                  color: "rgba(255,255,255,0.95)",
-                  background: "rgba(255,255,255,0.08)",
-                  boxShadow: "0 0 10px rgba(255,255,255,0.12)",
+                  color: isLight ? "rgba(62,88,124,0.92)" : "rgba(255,255,255,0.95)",
+                  background: isLight ? "rgba(224,236,252,0.94)" : "rgba(255,255,255,0.08)",
+                  boxShadow: isLight ? "inset 0 0 0 1px rgba(122,150,188,0.24)" : "0 0 10px rgba(255,255,255,0.12)",
                 }}
               >
                 Updated {formatAge(effectiveReq?.updatedAt)}
@@ -795,9 +831,9 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                   borderRadius: 999,
 
                   // ✅ pill border only
-                  background: "rgba(255,255,255,0.03)",
-                  backdropFilter: "blur(10px)",
-                  color: "rgba(255,255,255,0.92)",
+                  background: isLight ? "rgba(240,249,255,0.78)" : "rgba(255,255,255,0.03)",
+                  backdropFilter: isLight ? "none" : "blur(10px)",
+                  color: isLight ? "rgba(48,72,108,0.92)" : "rgba(255,255,255,0.92)",
                   fontSize: 11,
                   fontWeight: 850,
                   textAlign: "center",
@@ -813,14 +849,15 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                       ? "1px solid rgba(255,120,60,0.58)"
                       : "1px solid rgba(0,206,255,0.45)",
 
-                  boxShadow:
-                    chip.kind === "overdue"
-                      ? "0 0 34px rgba(255,56,120,0.60)"
-                      : chip.kind === "due"
-                      ? "0 0 20px rgba(255,186,0,0.34)"
-                      : chip.kind === "blocked"
-                      ? "0 0 22px rgba(255,120,60,0.32)"
-                      : "0 0 18px rgba(0,206,255,0.28)",
+                  boxShadow: isLight
+                    ? "0 3px 10px rgba(76,106,152,0.12)"
+                    : chip.kind === "overdue"
+                    ? "0 0 34px rgba(255,56,120,0.60)"
+                    : chip.kind === "due"
+                    ? "0 0 20px rgba(255,186,0,0.34)"
+                    : chip.kind === "blocked"
+                    ? "0 0 22px rgba(255,120,60,0.32)"
+                    : "0 0 18px rgba(0,206,255,0.28)",
 
                   // ✅ animation behavior:
                   // due = subtle color shift (no pulse)
@@ -851,12 +888,12 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
       <div style={inner}>
         <div style={header}>
           <h1 style={titleRow}>
-            <span style={{ color: "rgba(255,200,124,0.95)" }}>{t("welcome")}</span>
+            <span style={{ color: isLight ? "rgba(106,122,154,0.94)" : "rgba(255,200,124,0.95)" }}>{t("welcome")}</span>
             <span
               style={{
                 fontWeight: 900,
-                color: "rgba(0,232,255,0.98)",
-                textShadow: "0 0 22px rgba(129,96,255,0.45), 0 0 16px rgba(0,206,255,0.35)",
+                color: isLight ? "rgba(44,74,124,0.96)" : "rgba(0,232,255,0.98)",
+                textShadow: isLight ? "none" : "0 0 22px rgba(129,96,255,0.45), 0 0 16px rgba(0,206,255,0.35)",
               }}
             >
               {derivedFirstName}
@@ -868,7 +905,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
               fontSize: 16,
               opacity: 0.82,
               margin: "8px 0 0 0",
-              color: "rgba(200,220,255,0.85)",
+              color: isLight ? "rgba(88,114,148,0.88)" : "rgba(200,220,255,0.85)",
               fontWeight: 500,
               letterSpacing: "0.2px",
             }}
@@ -883,14 +920,36 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
               marginTop: 12,
               padding: "6px 12px",
               borderRadius: 999,
-              border: demoMode ? "1.5px solid rgba(0,206,255,0.55)" : "1px solid rgba(255,255,255,0.14)",
-              background: demoMode ? "rgba(0,206,255,0.14)" : "rgba(255,255,255,0.06)",
-              color: demoMode ? "rgba(0,232,255,0.98)" : "rgba(255,255,255,0.70)",
+              border: demoMode
+                ? isLight
+                  ? "1.5px solid rgba(97,151,214,0.56)"
+                  : "1.5px solid rgba(0,206,255,0.55)"
+                : isLight
+                ? "1px solid rgba(122,150,188,0.34)"
+                : "1px solid rgba(255,255,255,0.14)",
+              background: demoMode
+                ? isLight
+                  ? "rgba(97,151,214,0.16)"
+                  : "rgba(0,206,255,0.14)"
+                : isLight
+                ? "rgba(244,249,255,0.88)"
+                : "rgba(255,255,255,0.06)",
+              color: demoMode
+                ? isLight
+                  ? "rgba(36,89,149,0.98)"
+                  : "rgba(0,232,255,0.98)"
+                : isLight
+                ? "rgba(78,103,138,0.82)"
+                : "rgba(255,255,255,0.70)",
               fontSize: 11,
               fontWeight: 900,
               letterSpacing: 0.2,
               transition: "all 200ms ease",
-              boxShadow: demoMode ? "0 0 16px rgba(0,206,255,0.28)" : "none",
+              boxShadow: demoMode
+                ? isLight
+                  ? "0 5px 12px rgba(97,151,214,0.20)"
+                  : "0 0 16px rgba(0,206,255,0.28)"
+                : "none",
               userSelect: "none",
             }}
           >
@@ -913,7 +972,15 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
           />
         </div>
 
-        <div style={{ marginTop: 4, fontSize: 12, opacity: 0.72, color: "rgba(255,255,255,0.75)", textAlign: "center" }}>
+        <div
+          style={{
+            marginTop: 4,
+            fontSize: 12,
+            opacity: 0.72,
+            color: isLight ? "rgba(92,116,150,0.86)" : "rgba(255,255,255,0.75)",
+            textAlign: "center",
+          }}
+        >
           {t("tip")}
         </div>
       </div>
