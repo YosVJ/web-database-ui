@@ -381,14 +381,14 @@ export default function Auth({ hideLocalDock = false }) {
 function makeStyles(isLight) {
   // IMPORTANT: no "page background" here; SpaceShell provides the background
   const text = isLight ? "rgba(33,54,86,0.94)" : "rgba(255,255,255,0.92)";
-  const border = isLight ? "1px solid rgba(116,143,185,0.44)" : "1px solid rgba(255,255,255,0.12)";
+  const border = isLight ? "1px solid rgba(108,139,184,0.52)" : "1px solid rgba(255,255,255,0.12)";
   const surface = isLight
-    ? "linear-gradient(158deg, rgba(250,254,255,0.97), rgba(240,248,255,0.94))"
+    ? "linear-gradient(158deg, rgba(252,255,255,0.985), rgba(244,250,255,0.97))"
     : "rgba(255,255,255,0.06)";
-  const inputBg = isLight ? "rgba(252,255,255,0.985)" : "rgba(0,0,0,0.28)";
+  const inputBg = isLight ? "rgba(255,255,255,0.995)" : "rgba(0,0,0,0.28)";
   const dividerColor = isLight ? "rgba(114,145,188,0.34)" : "rgba(255,255,255,0.14)";
   const pillOnBg = isLight ? "rgba(211,228,255,0.98)" : "rgba(255,255,255,0.12)";
-  const lightSoftShadow = "0 16px 34px rgba(56,86,136,0.22)";
+  const lightSoftShadow = "0 18px 36px rgba(56,86,136,0.24)";
 
   return {
     container: {
@@ -470,7 +470,7 @@ function makeStyles(isLight) {
       backdropFilter: isLight ? "blur(9px)" : "blur(14px)",
       ...(isLight
         ? {
-            boxShadow: "0 16px 34px rgba(56,86,136,0.22), inset 0 1px 0 rgba(255,255,255,0.76)",
+            boxShadow: "0 18px 36px rgba(56,86,136,0.24), inset 0 1px 0 rgba(255,255,255,0.82)",
           }
         : null),
     },
@@ -508,6 +508,7 @@ function makeStyles(isLight) {
         ? {
             boxShadow: "inset 0 0 0 1px rgba(116,143,185,0.32)",
             color: "rgba(38,63,99,0.96)",
+            backgroundImage: "linear-gradient(180deg, rgba(224,237,255,0.98), rgba(212,228,255,0.98))",
           }
         : null),
     },
@@ -523,6 +524,7 @@ function makeStyles(isLight) {
       fontWeight: 800,
       fontSize: 13,
       backdropFilter: isLight ? "blur(8px)" : "blur(14px)",
+      ...(isLight ? { background: "rgba(248,253,255,0.94)" } : null),
     },
     msBtnRow: {
       display: "flex",
@@ -558,7 +560,7 @@ function makeStyles(isLight) {
       color: "white",
       cursor: "pointer",
       fontWeight: 900,
-      boxShadow: isLight ? "0 6px 14px rgba(62,102,189,0.22)" : "none",
+      boxShadow: isLight ? "0 8px 16px rgba(62,102,189,0.24)" : "none",
     },
 
     msgOk: {
