@@ -52,7 +52,6 @@ const styles = {
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.75), 0 8px 18px rgba(56,84,131,0.16)",
   },
   gloss: {
-    content: '""',
     position: "absolute",
     top: 0,
     left: "10%",

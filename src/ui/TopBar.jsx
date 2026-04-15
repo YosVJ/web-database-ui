@@ -61,7 +61,7 @@ export default function TopBar({
 
         <div style={{ ...styles.pill, ...styles.livePill, ...(isDark ? styles.pillDark : styles.pillLight) }} title="Status: Live">
           <span style={styles.liveDot} />
-          <span style={styles.liveLabel}>LIVE</span>
+          <span style={{ ...styles.liveLabel, ...(isDark ? styles.liveLabelDark : styles.liveLabelLight) }}>LIVE</span>
         </div>
 
         <ThemeToggle theme={theme} onToggle={onToggleTheme} />
@@ -111,7 +111,7 @@ export default function TopBar({
               title="Profile (coming soon)"
               disabled
             >
-              <span style={styles.avatar}>U</span>
+              <span style={{ ...styles.avatar, ...(isDark ? styles.avatarDark : styles.avatarLight) }}>U</span>
               <span style={styles.profileText}>Profile</span>
             </button>
 
@@ -195,7 +195,15 @@ const styles = {
     fontSize: 12,
     fontWeight: 900,
     letterSpacing: 0.3,
+    transition: "color 240ms ease, text-shadow 240ms ease",
+  },
+  liveLabelDark: {
     color: "rgba(220,255,235,0.95)",
+    textShadow: "0 0 10px rgba(34,197,94,0.2)",
+  },
+  liveLabelLight: {
+    color: "rgba(16,80,47,0.92)",
+    textShadow: "0 0 8px rgba(34,197,94,0.16)",
   },
 
   groupDark: {
@@ -248,11 +256,19 @@ const styles = {
     borderRadius: 999,
     display: "grid",
     placeItems: "center",
-    background: "rgba(255,255,255,0.10)",
-    border: "1px solid rgba(255,255,255,0.14)",
     fontWeight: 900,
     fontSize: 12,
+    transition: "background 240ms ease, border-color 240ms ease, color 240ms ease",
+  },
+  avatarDark: {
+    background: "rgba(255,255,255,0.10)",
+    border: "1px solid rgba(255,255,255,0.14)",
     color: "rgba(255,255,255,0.85)",
+  },
+  avatarLight: {
+    background: "rgba(255,255,255,0.82)",
+    border: "1px solid rgba(22,45,93,0.18)",
+    color: "rgba(22,45,93,0.9)",
   },
   profileText: { opacity: 0.85 },
 
