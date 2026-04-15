@@ -122,24 +122,36 @@ export default function Auth({ hideLocalDock = false }) {
   const t = TEXT[lang] || TEXT.en;
 
   // Theme is read from localStorage (TopBar owns the toggle)
-  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
+  const [theme, setTheme] = useState(() => {
+    const rootTheme = document.documentElement.getAttribute("data-theme");
+    return (rootTheme || localStorage.getItem("theme") || "dark").toLowerCase() === "light" ? "light" : "dark";
+  });
   const isLight = theme === "light";
 
   // keep theme in sync if TopBar changes it
   useEffect(() => {
-    const sync = () => setTheme(localStorage.getItem("theme") || "dark");
+    const sync = () => {
+      const rootTheme = document.documentElement.getAttribute("data-theme");
+      const next = (rootTheme || localStorage.getItem("theme") || "dark").toLowerCase();
+      setTheme(next === "light" ? "light" : "dark");
+    };
+
+    const observer = new MutationObserver(sync);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
 
     const onStorage = (e) => {
       if (e.key === "theme") sync();
     };
-    const onFocus = () => sync();
 
     window.addEventListener("storage", onStorage);
-    window.addEventListener("focus", onFocus);
+    sync();
 
     return () => {
+      observer.disconnect();
       window.removeEventListener("storage", onStorage);
-      window.removeEventListener("focus", onFocus);
     };
   }, []);
 
@@ -380,13 +392,15 @@ export default function Auth({ hideLocalDock = false }) {
 
 function makeStyles(isLight) {
   // IMPORTANT: no "page background" here; SpaceShell provides the background
-  const text = "rgba(255,255,255,0.92)";
-  const border = "1px solid rgba(255,255,255,0.12)";
-
-  const surface = isLight ? "rgba(255,255,255,0.07)" : "rgba(255,255,255,0.06)";
-  const inputBg = isLight ? "rgba(255,255,255,0.11)" : "rgba(0,0,0,0.28)";
-  const dividerColor = isLight ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.14)";
-  const pillOnBg = isLight ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.12)";
+  const text = isLight ? "rgba(33,54,86,0.94)" : "rgba(255,255,255,0.92)";
+  const border = isLight ? "1px solid rgba(108,139,184,0.52)" : "1px solid rgba(255,255,255,0.12)";
+  const surface = isLight
+    ? "linear-gradient(158deg, rgba(252,255,255,0.985), rgba(244,250,255,0.97))"
+    : "rgba(255,255,255,0.06)";
+  const inputBg = isLight ? "rgba(255,255,255,0.995)" : "rgba(0,0,0,0.28)";
+  const dividerColor = isLight ? "rgba(114,145,188,0.34)" : "rgba(255,255,255,0.14)";
+  const pillOnBg = isLight ? "rgba(211,228,255,0.98)" : "rgba(255,255,255,0.12)";
+  const lightSoftShadow = "0 18px 36px rgba(56,86,136,0.24)";
 
   return {
     container: {
@@ -412,7 +426,7 @@ function makeStyles(isLight) {
       borderRadius: 999,
       background: surface,
       border,
-      backdropFilter: "blur(14px)",
+      backdropFilter: isLight ? "blur(8px)" : "blur(14px)",
       fontSize: 12,
       fontWeight: 900,
     },
@@ -441,7 +455,7 @@ function makeStyles(isLight) {
       maxWidth: 210,
       height: "auto",
       opacity: 0.98,
-      filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.35))",
+      filter: isLight ? "drop-shadow(0 8px 16px rgba(90,118,168,0.22))" : "drop-shadow(0 8px 18px rgba(0,0,0,0.35))",
     },
 
     heroTitle: {
@@ -454,18 +468,23 @@ function makeStyles(isLight) {
     heroSubtitle: {
       margin: "10px 0 0",
       fontSize: 14,
-      opacity: 0.78,
+      opacity: isLight ? 0.86 : 0.78,
       textAlign: "left",
     },
-    heroNote: { marginTop: 14, fontSize: 12, opacity: 0.7 },
+    heroNote: { marginTop: 14, fontSize: 12, opacity: isLight ? 0.74 : 0.7 },
 
     card: {
       borderRadius: 18,
       padding: 18,
       background: surface,
       border,
-      boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
-      backdropFilter: "blur(14px)",
+      boxShadow: isLight ? lightSoftShadow : "0 20px 60px rgba(0,0,0,0.35)",
+      backdropFilter: isLight ? "blur(9px)" : "blur(14px)",
+      ...(isLight
+        ? {
+            boxShadow: "0 18px 36px rgba(56,86,136,0.24), inset 0 1px 0 rgba(255,255,255,0.82)",
+          }
+        : null),
     },
     cardHeader: { display: "flex", justifyContent: "flex-end", marginBottom: 12 },
 
@@ -475,7 +494,12 @@ function makeStyles(isLight) {
       borderRadius: 999,
       background: surface,
       border,
-      backdropFilter: "blur(14px)",
+      backdropFilter: isLight ? "blur(8px)" : "blur(14px)",
+      ...(isLight
+        ? {
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.74)",
+          }
+        : null),
     },
     pill: {
       border: "none",
@@ -484,11 +508,22 @@ function makeStyles(isLight) {
       borderRadius: 999,
       background: "transparent",
       color: "inherit",
-      opacity: 0.78,
+      opacity: isLight ? 0.88 : 0.78,
       fontSize: 12,
       fontWeight: 800,
+      ...(isLight ? { letterSpacing: 0.2 } : null),
     },
-    pillOn: { background: pillOnBg, opacity: 1 },
+    pillOn: {
+      background: pillOnBg,
+      opacity: 1,
+      ...(isLight
+        ? {
+            boxShadow: "inset 0 0 0 1px rgba(116,143,185,0.32)",
+            color: "rgba(38,63,99,0.96)",
+            backgroundImage: "linear-gradient(180deg, rgba(224,237,255,0.98), rgba(212,228,255,0.98))",
+          }
+        : null),
+    },
 
     msBtn: {
       width: "100%",
@@ -500,7 +535,8 @@ function makeStyles(isLight) {
       cursor: "pointer",
       fontWeight: 800,
       fontSize: 13,
-      backdropFilter: "blur(14px)",
+      backdropFilter: isLight ? "blur(8px)" : "blur(14px)",
+      ...(isLight ? { background: "rgba(248,253,255,0.94)" } : null),
     },
     msBtnRow: {
       display: "flex",
@@ -523,6 +559,7 @@ function makeStyles(isLight) {
       background: inputBg,
       color: "inherit",
       outline: "none",
+      boxShadow: isLight ? "inset 0 1px 0 rgba(255,255,255,0.76)" : "none",
     },
     help: { fontSize: 11, opacity: 0.7 },
 
@@ -531,10 +568,11 @@ function makeStyles(isLight) {
       padding: "10px 12px",
       borderRadius: 12,
       border: "none",
-      background: "rgba(99,102,241,0.85)",
+      background: isLight ? "linear-gradient(180deg, rgba(74,123,228,0.96), rgba(60,104,205,0.96))" : "rgba(99,102,241,0.85)",
       color: "white",
       cursor: "pointer",
       fontWeight: 900,
+      boxShadow: isLight ? "0 8px 16px rgba(62,102,189,0.24)" : "none",
     },
 
     msgOk: {
@@ -563,8 +601,8 @@ function makeStyles(isLight) {
       border,
       borderRadius: 14,
       padding: "10px 12px",
-      boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
-      backdropFilter: "blur(14px)",
+      boxShadow: isLight ? "0 8px 22px rgba(58,88,138,0.14)" : "0 20px 60px rgba(0,0,0,0.25)",
+      backdropFilter: isLight ? "blur(8px)" : "blur(14px)",
     },
     footerLine: { height: 1, background: dividerColor, marginBottom: 8 },
     footerLinks: {
