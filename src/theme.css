@@ -1,0 +1,27 @@
+:root,
+[data-theme="dark"] {
+  --app-bg: #0a0a0c;
+  --app-text: rgba(235, 244, 255, 0.96);
+  --app-surface: rgba(255, 255, 255, 0.05);
+  --app-surface-strong: rgba(255, 255, 255, 0.08);
+  --app-border: rgba(255, 255, 255, 0.14);
+  --app-shadow: 0 18px 70px rgba(0, 0, 0, 0.5);
+
+  /* keep dark appearance exactly neutral under SpaceShell */
+  --app-art-bg: var(--app-bg);
+}
+
+[data-theme="light"] {
+  --app-bg: #eef4ff;
+  --app-text: rgba(15, 29, 56, 0.96);
+  --app-surface: rgba(255, 255, 255, 0.58);
+  --app-surface-strong: rgba(255, 255, 255, 0.74);
+  --app-border: rgba(28, 57, 112, 0.18);
+  --app-shadow: 0 18px 50px rgba(49, 83, 145, 0.18);
+
+  --app-art-bg:
+    radial-gradient(1100px 700px at 8% 12%, rgba(120, 167, 255, 0.32), transparent 58%),
+    radial-gradient(900px 680px at 86% 20%, rgba(169, 140, 255, 0.24), transparent 60%),
+    radial-gradient(1200px 700px at 50% 90%, rgba(142, 209, 255, 0.22), transparent 62%),
+    linear-gradient(180deg, #f6f9ff 0%, #eaf2ff 52%, #edf4ff 100%);
+}

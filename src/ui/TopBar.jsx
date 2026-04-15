@@ -79,7 +79,7 @@ export default function TopBar({
             style={{
               ...styles.langBtn,
               ...(isDark ? styles.langBtnDark : styles.langBtnLight),
-              ...(isEN ? styles.langOn : null),
+              ...(isEN ? (isDark ? styles.langOnDark : styles.langOnLight) : null),
               opacity: langSaving ? 0.7 : 1,
               cursor: langSaving ? "not-allowed" : "pointer",
             }}
@@ -93,7 +93,7 @@ export default function TopBar({
             style={{
               ...styles.langBtn,
               ...(isDark ? styles.langBtnDark : styles.langBtnLight),
-              ...(isTL ? styles.langOn : null),
+              ...(isTL ? (isDark ? styles.langOnDark : styles.langOnLight) : null),
               opacity: langSaving ? 0.7 : 1,
               cursor: langSaving ? "not-allowed" : "pointer",
             }}
@@ -234,10 +234,15 @@ const styles = {
   langBtnLight: {
     color: "rgba(22,45,93,0.82)",
   },
-  langOn: {
+  langOnDark: {
     background: "rgba(0,206,255,0.12)",
     boxShadow: "inset 0 0 0 1px rgba(0,206,255,0.22)",
     color: "rgba(220,250,255,0.95)",
+  },
+  langOnLight: {
+    background: "rgba(36,120,255,0.18)",
+    boxShadow: "inset 0 0 0 1px rgba(36,120,255,0.35)",
+    color: "rgba(14,42,92,0.98)",
   },
 
   profileBtn: {

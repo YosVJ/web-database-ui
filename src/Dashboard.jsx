@@ -30,6 +30,55 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
   const [draggingId, setDraggingId] = useState(null);
 
   const theme = (localStorage.getItem("theme") || "dark").toLowerCase();
+  const isLight = theme === "light";
+
+  const ui = isLight
+    ? {
+        tileBorder: "1px solid rgba(28,57,112,0.18)",
+        tileBg: "rgba(255,255,255,0.58)",
+        tileShadow: "0 18px 52px rgba(57,86,132,0.18)",
+        tileTextSubtle: "rgba(57,78,118,0.82)",
+        handleBorder: "1px solid rgba(28,57,112,0.18)",
+        handleBg: "rgba(255,255,255,0.74)",
+        handleText: "rgba(22,45,93,0.88)",
+        panelBg: "rgba(255,255,255,0.44)",
+        panelMeta: "rgba(118,89,36,0.92)",
+        cardText: "rgba(16,32,64,0.96)",
+        badgeBg: "rgba(22,45,93,0.12)",
+        badgeText: "rgba(22,45,93,0.92)",
+        chipBg: "rgba(255,255,255,0.62)",
+        titleWarm: "rgba(182,120,22,0.95)",
+        titleName: "rgba(25,113,202,0.95)",
+        titleShadow: "0 0 18px rgba(126,159,245,0.24), 0 0 10px rgba(137,108,240,0.16)",
+        subtitle: "rgba(46,78,126,0.86)",
+        demoBorderOff: "1px solid rgba(28,57,112,0.16)",
+        demoBgOff: "rgba(255,255,255,0.58)",
+        demoTextOff: "rgba(22,45,93,0.8)",
+        tipText: "rgba(34,66,112,0.78)",
+      }
+    : {
+        tileBorder: "1px solid rgba(255,255,255,0.10)",
+        tileBg: "rgba(255,255,255,0.04)",
+        tileShadow: "0 18px 70px rgba(0,0,0,0.50)",
+        tileTextSubtle: "rgba(200,220,255,0.85)",
+        handleBorder: "1px solid rgba(255,255,255,0.12)",
+        handleBg: "rgba(255,255,255,0.06)",
+        handleText: "rgba(255,255,255,0.85)",
+        panelBg: "rgba(255,255,255,0.03)",
+        panelMeta: "rgba(255,200,124,0.90)",
+        cardText: "rgba(255,255,255,0.98)",
+        badgeBg: "rgba(255,255,255,0.08)",
+        badgeText: "rgba(255,255,255,0.95)",
+        chipBg: "rgba(255,255,255,0.03)",
+        titleWarm: "rgba(255,200,124,0.95)",
+        titleName: "rgba(0,232,255,0.98)",
+        titleShadow: "0 0 22px rgba(129,96,255,0.45), 0 0 16px rgba(0,206,255,0.35)",
+        subtitle: "rgba(200,220,255,0.85)",
+        demoBorderOff: "1px solid rgba(255,255,255,0.14)",
+        demoBgOff: "rgba(255,255,255,0.06)",
+        demoTextOff: "rgba(255,255,255,0.70)",
+        tipText: "rgba(255,255,255,0.75)",
+      };
 
   const NEON_PRESET = "cyber";
   const NEON = {
@@ -632,10 +681,10 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
           position: "relative",
           borderRadius: 18,
           padding: 16,
-          border: "1px solid rgba(255,255,255,0.10)",
-          background: "rgba(255,255,255,0.04)",
+          border: ui.tileBorder,
+          background: ui.tileBg,
           backdropFilter: "blur(14px)",
-          boxShadow: isDragging ? "0 26px 110px rgba(0,0,0,0.72)" : "0 18px 70px rgba(0,0,0,0.50)",
+          boxShadow: isDragging ? "0 26px 110px rgba(0,0,0,0.72)" : ui.tileShadow,
           overflow: "visible",
           transform: "translateZ(0)",
           willChange: "transform",
@@ -672,7 +721,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
             >
               {company.name}
             </div>
-            <div style={{ fontSize: 13, opacity: 0.78, color: "rgba(200,220,255,0.85)", fontWeight: 600 }}>
+            <div style={{ fontSize: 13, opacity: 0.84, color: ui.tileTextSubtle, fontWeight: 600 }}>
               {company.desc}
             </div>
           </div>
@@ -688,9 +737,9 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                 width: 38,
                 height: 38,
                 borderRadius: 12,
-                border: "1px solid rgba(255,255,255,0.12)",
-                background: "rgba(255,255,255,0.06)",
-                color: "rgba(255,255,255,0.85)",
+                border: ui.handleBorder,
+                background: ui.handleBg,
+                color: ui.handleText,
                 cursor: isDragging ? "grabbing" : "grab",
                 display: "grid",
                 placeItems: "center",
@@ -711,7 +760,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
             padding: "12px 12px",
             borderRadius: 14,
             border: `1px solid ${ring}`,
-            background: "rgba(255,255,255,0.03)",
+            background: ui.panelBg,
             boxShadow: `0 0 18px ${glow}`,
             minHeight: 118,
           }}
@@ -723,7 +772,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                 opacity: 0.92,
                 fontWeight: 900,
                 letterSpacing: "0.3px",
-                color: "rgba(255,200,124,0.90)",
+                color: ui.panelMeta,
                 userSelect: "none",
               }}
             >
@@ -740,7 +789,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
               style={{
                 padding: "6px 10px",
                 borderRadius: 999,
-                border: "1px solid rgba(255,255,255,0.12)",
+                border: ui.handleBorder,
                 background: "transparent",
                 color: accent.text,
                 fontSize: 11,
@@ -757,7 +806,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
 
           <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "start" }}>
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 15, fontWeight: 900, color: "rgba(255,255,255,0.98)", lineHeight: 1.2 }}>
+              <div style={{ fontSize: 15, fontWeight: 900, color: ui.cardText, lineHeight: 1.2 }}>
                 {loadingActive && !demoMode ? "Loading…" : effectiveReq?.prNo ?? "—"}
               </div>
 
@@ -771,8 +820,8 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                   borderRadius: 999,
                   fontSize: 11,
                   fontWeight: 900,
-                  color: "rgba(255,255,255,0.95)",
-                  background: "rgba(255,255,255,0.08)",
+                  color: ui.badgeText,
+                  background: ui.badgeBg,
                   boxShadow: "0 0 10px rgba(255,255,255,0.12)",
                 }}
               >
@@ -795,9 +844,9 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                   borderRadius: 999,
 
                   // ✅ pill border only
-                  background: "rgba(255,255,255,0.03)",
+                  background: ui.panelBg,
                   backdropFilter: "blur(10px)",
-                  color: "rgba(255,255,255,0.92)",
+                  color: ui.cardText,
                   fontSize: 11,
                   fontWeight: 850,
                   textAlign: "center",
@@ -851,12 +900,12 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
       <div style={inner}>
         <div style={header}>
           <h1 style={titleRow}>
-            <span style={{ color: "rgba(255,200,124,0.95)" }}>{t("welcome")}</span>
+            <span style={{ color: ui.titleWarm }}>{t("welcome")}</span>
             <span
               style={{
                 fontWeight: 900,
-                color: "rgba(0,232,255,0.98)",
-                textShadow: "0 0 22px rgba(129,96,255,0.45), 0 0 16px rgba(0,206,255,0.35)",
+                color: ui.titleName,
+                textShadow: ui.titleShadow,
               }}
             >
               {derivedFirstName}
@@ -868,7 +917,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
               fontSize: 16,
               opacity: 0.82,
               margin: "8px 0 0 0",
-              color: "rgba(200,220,255,0.85)",
+              color: ui.subtitle,
               fontWeight: 500,
               letterSpacing: "0.2px",
             }}
@@ -883,9 +932,9 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
               marginTop: 12,
               padding: "6px 12px",
               borderRadius: 999,
-              border: demoMode ? "1.5px solid rgba(0,206,255,0.55)" : "1px solid rgba(255,255,255,0.14)",
-              background: demoMode ? "rgba(0,206,255,0.14)" : "rgba(255,255,255,0.06)",
-              color: demoMode ? "rgba(0,232,255,0.98)" : "rgba(255,255,255,0.70)",
+              border: demoMode ? "1.5px solid rgba(0,206,255,0.55)" : ui.demoBorderOff,
+              background: demoMode ? "rgba(0,206,255,0.14)" : ui.demoBgOff,
+              color: demoMode ? "rgba(0,232,255,0.98)" : ui.demoTextOff,
               fontSize: 11,
               fontWeight: 900,
               letterSpacing: 0.2,
@@ -913,7 +962,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
           />
         </div>
 
-        <div style={{ marginTop: 4, fontSize: 12, opacity: 0.72, color: "rgba(255,255,255,0.75)", textAlign: "center" }}>
+        <div style={{ marginTop: 4, fontSize: 12, opacity: 0.78, color: ui.tipText, textAlign: "center" }}>
           {t("tip")}
         </div>
       </div>

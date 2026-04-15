@@ -1,6 +1,8 @@
 import React from "react";
 
-export default function ThemeToggle({ theme = "dark", onToggle, disabled = false }) {
+const noop = () => {};
+
+export default function ThemeToggle({ theme = "dark", onToggle = noop, disabled = false }) {
   const isDark = theme === "dark";
 
   return (
