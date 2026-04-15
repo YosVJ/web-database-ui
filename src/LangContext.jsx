@@ -1,24 +1,8 @@
 import React from "react";
 import { supabase } from "./lib/supabaseClient";
-
-export const LangContext = React.createContext({
-  lang: "en",
-  setLang: async () => {},
-  langSaving: false,
-});
-
-export function useLangContext() {
-  const context = React.useContext(LangContext);
-  if (!context) throw new Error("useLangContext must be used within LangProvider");
-  return context;
-}
-
-function normalizeLang(v) {
-  return v === "tl" ? "tl" : "en";
-}
+import { LangContext, normalizeLang } from "./i18n/langContextStore";
 
 export function LangProvider({ children }) {
-  // 1) fast local preference (no DB needed)
   const [lang, _setLang] = React.useState(() => {
     const stored = localStorage.getItem("lang");
     return normalizeLang(stored);
@@ -26,7 +10,6 @@ export function LangProvider({ children }) {
 
   const [langSaving, setLangSaving] = React.useState(false);
 
-  // helper: write locally
   const setLangLocal = React.useCallback((nextLang) => {
     const n = normalizeLang(nextLang);
     _setLang(n);
@@ -34,7 +17,6 @@ export function LangProvider({ children }) {
     return n;
   }, []);
 
-  // 2) on mount + auth changes: sync from profile if available
   React.useEffect(() => {
     let cancelled = false;
 
@@ -55,16 +37,13 @@ export function LangProvider({ children }) {
       }
     }
 
-    // initial session check
     supabase.auth.getSession().then(({ data }) => {
       if (cancelled) return;
       syncFromProfile(data?.session);
     });
 
-    // keep in sync when auth changes (login/logout)
     const { data: sub } = supabase.auth.onAuthStateChange((_evt, session) => {
       syncFromProfile(session);
-      // if logged out, keep localStorage lang (do nothing)
     });
 
     return () => {
@@ -73,7 +52,6 @@ export function LangProvider({ children }) {
     };
   }, [setLangLocal]);
 
-  // 3) public setter: instant UI + persist to DB if logged in
   const setLang = React.useCallback(
     async (nextLang) => {
       const n = setLangLocal(nextLang);

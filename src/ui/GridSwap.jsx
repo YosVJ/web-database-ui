@@ -2,6 +2,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 
+const MotionUl = motion.ul;
+const MotionLi = motion.li;
+
 /**
  * GridSwap (LIVE SWAP + SLIDING LAYOUT)
  * - Drag via handle (bindHandle)
@@ -110,7 +113,9 @@ export default function GridSwap({
     if (e.currentTarget?.setPointerCapture) {
       try {
         e.currentTarget.setPointerCapture(e.pointerId);
-      } catch {}
+      } catch {
+        // Ignore pointer capture failures on unsupported environments.
+      }
     }
 
     e.preventDefault();
@@ -193,7 +198,7 @@ export default function GridSwap({
 
   return (
     <div style={{ position: "relative", width: "fit-content", overflow: "visible" }}>
-      <motion.ul
+      <MotionUl
         className={className}
         style={{ ...style, listStyle: "none", margin: 0, padding: 0 }}
         layout
@@ -214,7 +219,7 @@ export default function GridSwap({
           };
 
           return (
-            <motion.li
+            <MotionLi
               key={item.id}
               ref={(el) => setTileRef(item.id, el)}
               layout
@@ -226,10 +231,10 @@ export default function GridSwap({
               }}
             >
               {renderItem(item, api)}
-            </motion.li>
+            </MotionLi>
           );
         })}
-      </motion.ul>
+      </MotionUl>
 
       {isDragging && draggingItem && (
         <div

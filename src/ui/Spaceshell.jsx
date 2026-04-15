@@ -19,7 +19,15 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 
 function usePerfProfile() {
   const [prefersReduced, setPrefersReduced] = useState(false);
-  const [lowEnd, setLowEnd] = useState(false);
+  const [lowEnd] = useState(() => {
+    const cores = navigator.hardwareConcurrency || 8;
+    const mem = navigator.deviceMemory || 8;
+    const conn = navigator.connection;
+    const saveData = Boolean(conn?.saveData);
+    const eff = conn?.effectiveType || "";
+    const slowNet = eff.includes("2g") || eff.includes("3g");
+    return saveData || slowNet || cores <= 4 || mem <= 4;
+  });
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
@@ -38,15 +46,6 @@ function usePerfProfile() {
     onVis();
     document.addEventListener("visibilitychange", onVis);
 
-    // low-end heuristic
-    const cores = navigator.hardwareConcurrency || 8;
-    const mem = navigator.deviceMemory || 8;
-    const conn = navigator.connection;
-    const saveData = Boolean(conn?.saveData);
-    const eff = conn?.effectiveType || "";
-    const slowNet = eff.includes("2g") || eff.includes("3g");
-
-    setLowEnd(saveData || slowNet || cores <= 4 || mem <= 4);
 
     return () => {
       document.removeEventListener("visibilitychange", onVis);
