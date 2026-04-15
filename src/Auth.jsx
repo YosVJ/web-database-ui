@@ -127,17 +127,28 @@ export default function Auth({ hideLocalDock = false }) {
 
   // keep theme in sync if TopBar changes it
   useEffect(() => {
-    const sync = () => setTheme(localStorage.getItem("theme") || "dark");
+    const sync = () => {
+      const fromAttr = document.documentElement.getAttribute("data-theme");
+      setTheme(fromAttr || localStorage.getItem("theme") || "dark");
+    };
 
     const onStorage = (e) => {
       if (e.key === "theme") sync();
     };
     const onFocus = () => sync();
 
+    const observer = new MutationObserver(sync);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+
+    sync();
     window.addEventListener("storage", onStorage);
     window.addEventListener("focus", onFocus);
 
     return () => {
+      observer.disconnect();
       window.removeEventListener("storage", onStorage);
       window.removeEventListener("focus", onFocus);
     };
@@ -380,21 +391,50 @@ export default function Auth({ hideLocalDock = false }) {
 
 function makeStyles(isLight) {
   // IMPORTANT: no "page background" here; SpaceShell provides the background
-  const text = "rgba(255,255,255,0.92)";
-  const border = "1px solid rgba(255,255,255,0.12)";
-
-  const surface = isLight ? "rgba(255,255,255,0.07)" : "rgba(255,255,255,0.06)";
-  const inputBg = isLight ? "rgba(255,255,255,0.11)" : "rgba(0,0,0,0.28)";
-  const dividerColor = isLight ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.14)";
-  const pillOnBg = isLight ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.12)";
+  const palette = isLight
+    ? {
+        text: "rgba(18,34,66,0.95)",
+        heroSubtitle: "rgba(42,74,124,0.86)",
+        heroNote: "rgba(52,82,132,0.74)",
+        border: "1px solid rgba(28,57,112,0.16)",
+        surface: "linear-gradient(140deg, rgba(255,255,255,0.78), rgba(234,243,255,0.58))",
+        surfaceSoft: "rgba(255,255,255,0.62)",
+        inputBg: "rgba(255,255,255,0.86)",
+        dividerColor: "rgba(41,74,129,0.2)",
+        pillOnBg: "rgba(36,120,255,0.2)",
+        pillOnText: "rgba(14,42,92,0.98)",
+        btnPrimary: "linear-gradient(135deg, rgba(61,131,245,0.94), rgba(82,106,248,0.9))",
+        btnPrimaryShadow: "0 10px 22px rgba(69,112,209,0.35)",
+        cardShadow: "0 24px 64px rgba(66,99,156,0.2)",
+        footShadow: "0 18px 50px rgba(66,99,156,0.16)",
+        inputShadow: "inset 0 1px 0 rgba(255,255,255,0.72)",
+      }
+    : {
+        text: "rgba(255,255,255,0.92)",
+        heroSubtitle: "rgba(255,255,255,0.78)",
+        heroNote: "rgba(255,255,255,0.7)",
+        border: "1px solid rgba(255,255,255,0.12)",
+        surface: "rgba(255,255,255,0.06)",
+        surfaceSoft: "rgba(255,255,255,0.06)",
+        inputBg: "rgba(0,0,0,0.28)",
+        dividerColor: "rgba(255,255,255,0.14)",
+        pillOnBg: "rgba(255,255,255,0.12)",
+        pillOnText: "rgba(255,255,255,0.96)",
+        btnPrimary: "rgba(99,102,241,0.85)",
+        btnPrimaryShadow: "0 10px 22px rgba(67,56,202,0.35)",
+        cardShadow: "0 20px 60px rgba(0,0,0,0.35)",
+        footShadow: "0 20px 60px rgba(0,0,0,0.25)",
+        inputShadow: "none",
+      };
 
   return {
     container: {
       width: "100%",
-      color: text,
+      color: palette.text,
       position: "relative",
       fontFamily:
         'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif',
+      transition: "color 280ms ease",
     },
 
     localDock: {
@@ -410,8 +450,8 @@ function makeStyles(isLight) {
       gap: 10,
       padding: "10px 12px",
       borderRadius: 999,
-      background: surface,
-      border,
+      background: palette.surfaceSoft,
+      border: palette.border,
       backdropFilter: "blur(14px)",
       fontSize: 12,
       fontWeight: 900,
@@ -441,7 +481,10 @@ function makeStyles(isLight) {
       maxWidth: 210,
       height: "auto",
       opacity: 0.98,
-      filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.35))",
+      filter: isLight
+        ? "drop-shadow(0 10px 22px rgba(99,126,176,0.26))"
+        : "drop-shadow(0 8px 18px rgba(0,0,0,0.35))",
+      transition: "filter 280ms ease",
     },
 
     heroTitle: {
@@ -450,22 +493,25 @@ function makeStyles(isLight) {
       fontWeight: 900,
       letterSpacing: -0.4,
       textAlign: "left",
+      color: palette.text,
     },
     heroSubtitle: {
       margin: "10px 0 0",
       fontSize: 14,
-      opacity: 0.78,
+      opacity: 1,
       textAlign: "left",
+      color: palette.heroSubtitle,
     },
-    heroNote: { marginTop: 14, fontSize: 12, opacity: 0.7 },
+    heroNote: { marginTop: 14, fontSize: 12, opacity: 1, color: palette.heroNote },
 
     card: {
       borderRadius: 18,
       padding: 18,
-      background: surface,
-      border,
-      boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
+      background: palette.surface,
+      border: palette.border,
+      boxShadow: palette.cardShadow,
       backdropFilter: "blur(14px)",
+      transition: "background 320ms ease, border-color 320ms ease, box-shadow 320ms ease",
     },
     cardHeader: { display: "flex", justifyContent: "flex-end", marginBottom: 12 },
 
@@ -473,8 +519,8 @@ function makeStyles(isLight) {
       display: "flex",
       padding: 4,
       borderRadius: 999,
-      background: surface,
-      border,
+      background: palette.surfaceSoft,
+      border: palette.border,
       backdropFilter: "blur(14px)",
     },
     pill: {
@@ -484,18 +530,18 @@ function makeStyles(isLight) {
       borderRadius: 999,
       background: "transparent",
       color: "inherit",
-      opacity: 0.78,
+      opacity: 0.82,
       fontSize: 12,
       fontWeight: 800,
     },
-    pillOn: { background: pillOnBg, opacity: 1 },
+    pillOn: { background: palette.pillOnBg, color: palette.pillOnText, opacity: 1 },
 
     msBtn: {
       width: "100%",
       padding: "10px 12px",
       borderRadius: 12,
-      border,
-      background: surface,
+      border: palette.border,
+      background: palette.surfaceSoft,
       color: "inherit",
       cursor: "pointer",
       fontWeight: 800,
@@ -511,30 +557,33 @@ function makeStyles(isLight) {
     },
 
     dividerRow: { display: "flex", alignItems: "center", gap: 10, margin: "14px 0" },
-    divider: { height: 1, flex: 1, background: dividerColor },
-    dividerText: { fontSize: 12, opacity: 0.7 },
+    divider: { height: 1, flex: 1, background: palette.dividerColor },
+    dividerText: { fontSize: 12, opacity: 0.78 },
 
     form: { display: "grid", gap: 12 },
     label: { display: "grid", gap: 6, fontSize: 12, opacity: 0.95 },
     input: {
       padding: "10px 12px",
       borderRadius: 12,
-      border,
-      background: inputBg,
+      border: palette.border,
+      background: palette.inputBg,
       color: "inherit",
       outline: "none",
+      boxShadow: palette.inputShadow,
+      transition: "background 260ms ease, border-color 260ms ease, box-shadow 260ms ease",
     },
-    help: { fontSize: 11, opacity: 0.7 },
+    help: { fontSize: 11, opacity: 0.72 },
 
     primaryBtn: {
       width: "100%",
       padding: "10px 12px",
       borderRadius: 12,
       border: "none",
-      background: "rgba(99,102,241,0.85)",
+      background: palette.btnPrimary,
       color: "white",
       cursor: "pointer",
       fontWeight: 900,
+      boxShadow: palette.btnPrimaryShadow,
     },
 
     msgOk: {
@@ -559,26 +608,28 @@ function makeStyles(isLight) {
       width: "min(720px, 100%)",
       marginLeft: "auto",
       marginRight: "auto",
-      background: surface,
-      border,
+      background: palette.surface,
+      border: palette.border,
       borderRadius: 14,
       padding: "10px 12px",
-      boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+      boxShadow: palette.footShadow,
       backdropFilter: "blur(14px)",
+      transition: "background 320ms ease, border-color 320ms ease, box-shadow 320ms ease",
     },
-    footerLine: { height: 1, background: dividerColor, marginBottom: 8 },
+    footerLine: { height: 1, background: palette.dividerColor, marginBottom: 8 },
     footerLinks: {
       display: "flex",
       justifyContent: "center",
       gap: 10,
       fontSize: 12,
-      opacity: 0.88,
+      opacity: 0.9,
       flexWrap: "wrap",
     },
     link: { color: "inherit", textDecoration: "none", fontWeight: 800 },
     dotSep: { opacity: 0.6 },
   };
 }
+
 
 /* Responsive: stack hero + card on small screens */
 if (typeof document !== "undefined" && !document.getElementById("auth-responsive-style")) {

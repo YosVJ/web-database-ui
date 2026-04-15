@@ -15,8 +15,14 @@ body,
   height: 100% !important;
   margin: 0 !important;     /* kills the white frame */
   padding: 0 !important;    /* kills the white frame */
-  background: #0a0a0c !important;
+  background: var(--app-bg, #0a0a0c) !important;
+  color: var(--app-text, rgba(235, 244, 255, 0.96));
   overflow: hidden !important; /* kills page scrolling */
+  transition: background 360ms ease, color 260ms ease;
+}
+
+body {
+  background: var(--app-art-bg, var(--app-bg, #0a0a0c)) !important;
 }
 
 /* Pin the whole app to the viewport so nothing can push layout bigger */
