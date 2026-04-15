@@ -7,7 +7,8 @@ import Dashboard from "./Dashboard.jsx";
 import RequireAuth from "./routes/RequireAuth.jsx";
 import SpaceShell from "./ui/Spaceshell.jsx";
 import TopBar from "./ui/TopBar.jsx";
-import { LangProvider, useLangContext } from "./LangContext.jsx";
+import { LangProvider } from "./LangContext.jsx";
+import { useLangContext } from "./i18n/langContextStore";
 import { supabase } from "./lib/supabaseClient";
 
 function AppContent() {

@@ -2,6 +2,8 @@
 import React from "react";
 import { motion, useDragControls } from "framer-motion";
 
+const MotionDiv = motion.div;
+
 const DEFAULT_COMPANIES = [
   { id: "synercore", name: "Synercore", subtitle: "Primary", accent: "cyan", dueAt: null },
   { id: "sy3", name: "SY3 Energy", subtitle: "Energy Services", accent: "blue", dueAt: null },
@@ -158,7 +160,7 @@ function CompanyTile({ item, onSelect, registerEl, isDragging, onDragStartId, on
   const urgencyAnim = fx.show && fx.blinkSec > 0 ? `urgencyGlowPulse ${fx.blinkSec}s ease-in-out infinite` : "none";
 
   return (
-    <motion.div
+    <MotionDiv
       layout
       layoutId={item.id}
       ref={(el) => registerEl(item.id, el)}
@@ -288,7 +290,7 @@ function CompanyTile({ item, onSelect, registerEl, isDragging, onDragStartId, on
           </div>
         </div>
       </div>
-    </motion.div>
+    </MotionDiv>
   );
 }
 
@@ -308,6 +310,7 @@ export default function CompanyOptions({ companies, onSelectCompany }) {
   const elsRef = React.useRef(new Map());
   const rectsRef = React.useRef(new Map());
   const draggingIdRef = React.useRef(null);
+  const [draggingId, setDraggingId] = React.useState(null);
 
   const INNER_HITBOX = 0.55;
   const SWAP_COOLDOWN_MS = 170;
@@ -356,6 +359,7 @@ export default function CompanyOptions({ companies, onSelectCompany }) {
   const onDragStartId = React.useCallback(
     (id) => {
       draggingIdRef.current = id;
+      setDraggingId(id);
       lastOverRef.current = null;
       lastSwapAtRef.current = 0;
       measureAll();
@@ -391,6 +395,7 @@ export default function CompanyOptions({ companies, onSelectCompany }) {
 
   const onDragEndId = React.useCallback(() => {
     draggingIdRef.current = null;
+    setDraggingId(null);
     lastOverRef.current = null;
     lastSwapAtRef.current = 0;
     setTimeout(measureAll, 0);
@@ -425,7 +430,7 @@ export default function CompanyOptions({ companies, onSelectCompany }) {
               item={item}
               onSelect={onSelectCompany}
               registerEl={registerEl}
-              isDragging={draggingIdRef.current === item.id}
+              isDragging={draggingId === item.id}
               onDragStartId={onDragStartId}
               onDragMove={onDragMove}
               onDragEndId={onDragEndId}

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "./lib/supabaseClient";
-import { useLangContext } from "./LangContext.jsx";
+import { useLangContext } from "./i18n/langContextStore";
 
 const TEXT = {
   en: {
