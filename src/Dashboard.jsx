@@ -348,18 +348,18 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
     if (isLight) {
       switch (company.accent) {
         case "cyan":
-          return { ring: "rgba(86,146,217,0.50)", glow: "rgba(118,170,235,0.22)", text: "rgba(26,84,150,0.96)" };
+          return { ring: "rgba(84,145,217,0.56)", glow: "rgba(118,170,235,0.16)", text: "rgba(24,82,146,0.96)" };
         case "green":
-          return { ring: "rgba(78,153,142,0.50)", glow: "rgba(116,180,170,0.20)", text: "rgba(32,103,94,0.96)" };
+          return { ring: "rgba(75,151,140,0.56)", glow: "rgba(116,180,170,0.15)", text: "rgba(30,100,92,0.96)" };
         case "amber":
-          return { ring: "rgba(188,146,82,0.50)", glow: "rgba(211,174,116,0.20)", text: "rgba(121,86,36,0.96)" };
+          return { ring: "rgba(185,143,80,0.56)", glow: "rgba(211,174,116,0.15)", text: "rgba(116,82,34,0.96)" };
         case "magenta":
-          return { ring: "rgba(158,110,171,0.50)", glow: "rgba(185,136,198,0.20)", text: "rgba(106,64,121,0.96)" };
+          return { ring: "rgba(156,108,169,0.56)", glow: "rgba(185,136,198,0.15)", text: "rgba(102,62,117,0.96)" };
         case "orange":
-          return { ring: "rgba(199,134,74,0.50)", glow: "rgba(222,158,99,0.20)", text: "rgba(118,72,27,0.96)" };
+          return { ring: "rgba(196,132,72,0.56)", glow: "rgba(222,158,99,0.15)", text: "rgba(112,69,26,0.96)" };
         case "purple":
         default:
-          return { ring: "rgba(105,115,197,0.50)", glow: "rgba(137,148,222,0.20)", text: "rgba(55,68,152,0.96)" };
+          return { ring: "rgba(103,113,195,0.56)", glow: "rgba(137,148,222,0.15)", text: "rgba(52,66,148,0.96)" };
       }
     }
 
@@ -653,7 +653,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
           padding: 16,
           border: isLight ? "1px solid rgba(122,150,188,0.34)" : "1px solid rgba(255,255,255,0.10)",
           background: isLight
-            ? "linear-gradient(155deg, rgba(247,252,255,0.93), rgba(230,242,255,0.88))"
+            ? "linear-gradient(155deg, rgba(249,253,255,0.97), rgba(237,246,255,0.94))"
             : "rgba(255,255,255,0.04)",
           backdropFilter: isLight ? "blur(8px)" : "blur(14px)",
           boxShadow: isDragging
@@ -661,7 +661,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
               ? "0 14px 38px rgba(70,102,152,0.28)"
               : "0 26px 110px rgba(0,0,0,0.72)"
             : isLight
-            ? "0 8px 24px rgba(72,103,150,0.16)"
+            ? "0 10px 26px rgba(72,103,150,0.18)"
             : "0 18px 70px rgba(0,0,0,0.50)",
           overflow: "visible",
           transform: "translateZ(0)",
@@ -725,7 +725,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                 height: 38,
                 borderRadius: 12,
                 border: "1px solid rgba(255,255,255,0.12)",
-                background: isLight ? "rgba(255,255,255,0.82)" : "rgba(255,255,255,0.06)",
+                background: isLight ? "rgba(252,255,255,0.92)" : "rgba(255,255,255,0.06)",
                 color: isLight ? "rgba(43,67,102,0.88)" : "rgba(255,255,255,0.85)",
                 cursor: isDragging ? "grabbing" : "grab",
                 display: "grid",
@@ -747,8 +747,8 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
             padding: "12px 12px",
             borderRadius: 14,
             border: `1px solid ${ring}`,
-            background: isLight ? "rgba(244,251,255,0.82)" : "rgba(255,255,255,0.03)",
-            boxShadow: isLight ? "0 6px 18px rgba(74,104,150,0.12)" : `0 0 18px ${glow}`,
+            background: isLight ? "rgba(246,252,255,0.92)" : "rgba(255,255,255,0.03)",
+            boxShadow: isLight ? "0 8px 20px rgba(74,104,150,0.13)" : `0 0 18px ${glow}`,
             minHeight: 118,
           }}
         >
@@ -808,7 +808,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                   fontSize: 11,
                   fontWeight: 900,
                   color: isLight ? "rgba(62,88,124,0.92)" : "rgba(255,255,255,0.95)",
-                  background: isLight ? "rgba(224,236,252,0.94)" : "rgba(255,255,255,0.08)",
+                  background: isLight ? "rgba(228,239,253,0.96)" : "rgba(255,255,255,0.08)",
                   boxShadow: isLight ? "inset 0 0 0 1px rgba(122,150,188,0.24)" : "0 0 10px rgba(255,255,255,0.12)",
                 }}
               >
@@ -831,7 +831,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                   borderRadius: 999,
 
                   // ✅ pill border only
-                  background: isLight ? "rgba(240,249,255,0.78)" : "rgba(255,255,255,0.03)",
+                  background: isLight ? "rgba(241,249,255,0.90)" : "rgba(255,255,255,0.03)",
                   backdropFilter: isLight ? "none" : "blur(10px)",
                   color: isLight ? "rgba(48,72,108,0.92)" : "rgba(255,255,255,0.92)",
                   fontSize: 11,

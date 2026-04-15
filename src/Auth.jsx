@@ -381,14 +381,14 @@ export default function Auth({ hideLocalDock = false }) {
 function makeStyles(isLight) {
   // IMPORTANT: no "page background" here; SpaceShell provides the background
   const text = isLight ? "rgba(33,54,86,0.94)" : "rgba(255,255,255,0.92)";
-  const border = isLight ? "1px solid rgba(122,148,186,0.34)" : "1px solid rgba(255,255,255,0.12)";
+  const border = isLight ? "1px solid rgba(116,143,185,0.44)" : "1px solid rgba(255,255,255,0.12)";
   const surface = isLight
-    ? "linear-gradient(158deg, rgba(248,252,255,0.93), rgba(235,244,255,0.88))"
+    ? "linear-gradient(158deg, rgba(250,254,255,0.97), rgba(240,248,255,0.94))"
     : "rgba(255,255,255,0.06)";
-  const inputBg = isLight ? "rgba(250,254,255,0.95)" : "rgba(0,0,0,0.28)";
-  const dividerColor = isLight ? "rgba(114,145,188,0.30)" : "rgba(255,255,255,0.14)";
-  const pillOnBg = isLight ? "rgba(216,231,255,0.94)" : "rgba(255,255,255,0.12)";
-  const lightSoftShadow = "0 10px 26px rgba(58,88,138,0.16)";
+  const inputBg = isLight ? "rgba(252,255,255,0.985)" : "rgba(0,0,0,0.28)";
+  const dividerColor = isLight ? "rgba(114,145,188,0.34)" : "rgba(255,255,255,0.14)";
+  const pillOnBg = isLight ? "rgba(211,228,255,0.98)" : "rgba(255,255,255,0.12)";
+  const lightSoftShadow = "0 16px 34px rgba(56,86,136,0.22)";
 
   return {
     container: {
@@ -468,6 +468,11 @@ function makeStyles(isLight) {
       border,
       boxShadow: isLight ? lightSoftShadow : "0 20px 60px rgba(0,0,0,0.35)",
       backdropFilter: isLight ? "blur(9px)" : "blur(14px)",
+      ...(isLight
+        ? {
+            boxShadow: "0 16px 34px rgba(56,86,136,0.22), inset 0 1px 0 rgba(255,255,255,0.76)",
+          }
+        : null),
     },
     cardHeader: { display: "flex", justifyContent: "flex-end", marginBottom: 12 },
 
@@ -478,6 +483,11 @@ function makeStyles(isLight) {
       background: surface,
       border,
       backdropFilter: isLight ? "blur(8px)" : "blur(14px)",
+      ...(isLight
+        ? {
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.74)",
+          }
+        : null),
     },
     pill: {
       border: "none",
@@ -489,8 +499,18 @@ function makeStyles(isLight) {
       opacity: isLight ? 0.88 : 0.78,
       fontSize: 12,
       fontWeight: 800,
+      ...(isLight ? { letterSpacing: 0.2 } : null),
     },
-    pillOn: { background: pillOnBg, opacity: 1 },
+    pillOn: {
+      background: pillOnBg,
+      opacity: 1,
+      ...(isLight
+        ? {
+            boxShadow: "inset 0 0 0 1px rgba(116,143,185,0.32)",
+            color: "rgba(38,63,99,0.96)",
+          }
+        : null),
+    },
 
     msBtn: {
       width: "100%",
