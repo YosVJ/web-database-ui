@@ -10,10 +10,12 @@ import TopBar from "./ui/TopBar.jsx";
 import { LangProvider } from "./LangContext.jsx";
 import { useLangContext } from "./i18n/langContextStore";
 import { supabase } from "./lib/supabaseClient";
+import { useTheme } from "./lib/useTheme";
 
 function AppContent() {
   const { lang, setLang, langSaving } = useLangContext();
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
 
   const handleLogout = async () => {
     try {
@@ -30,6 +32,8 @@ function AppContent() {
         onLangChange={setLang}
         langSaving={langSaving}
         onLogout={handleLogout}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
 
       <Routes>
