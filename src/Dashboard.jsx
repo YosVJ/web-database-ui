@@ -284,19 +284,24 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
       for (const company of initialCompanies) {
         try {
           const { data, error } = await supabase
-            .from("purchase_requests")
-            .select("id, prNo, status, dueAt, blockedReason, nextActor, updatedAt, created_at")
-            .eq("company_id", company.id)
-            .order("created_at", { ascending: true })
-            .limit(1)
-            .maybeSingle();
-
-          if (cancelled) return;
-          if (!error && data) results[company.id] = data;
-        } catch (e) {
-          console.error(`Error loading request for ${company.id}:`, e);
+          .from("purchase_requests")
+          .select("id, pr_no, status, due_at, blocked_reason, next_actor, updated_at, created_at")
+          .eq("company_id", company.id)
+          .order("created_at", { ascending: true })
+          .limit(1)
+          .maybeSingle();
+        
+        if (cancelled) return;
+        if (!error && data) {
+          results[company.id] = {
+            ...data,
+            prNo: data.pr_no,
+            dueAt: data.due_at,
+            blockedReason: data.blocked_reason,
+            nextActor: data.next_actor,
+            updatedAt: data.updated_at,
+          };
         }
-      }
 
       if (!cancelled) {
         setActiveByCompany(results);
