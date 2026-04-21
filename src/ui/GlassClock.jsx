@@ -16,8 +16,8 @@ export default function GlassClock({ timeText, theme = "dark" }) {
       <span
         style={{
           ...styles.timeText,
-          color: isDark ? "rgba(255,255,255,0.92)" : "rgba(20,29,50,0.92)",
-          textShadow: isDark ? "0 0 12px rgba(255,255,255,0.15)" : "0 0 10px rgba(76,127,255,0.18)",
+          color: "var(--topbar-pill-text)",
+          textShadow: "var(--clock-text-shadow)",
         }}
       >
         {timeText}
@@ -42,12 +42,12 @@ const styles = {
     transition: "background 320ms ease, border-color 320ms ease, box-shadow 320ms ease",
   },
   wrapDark: {
-    border: "1px solid rgba(255,255,255,0.16)",
+    border: "1px solid var(--app-border)",
     background: "linear-gradient(135deg, rgba(255,255,255,0.13), rgba(255,255,255,0.05))",
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.18), 0 8px 24px rgba(0,0,0,0.35)",
   },
   wrapLight: {
-    border: "1px solid rgba(22,45,93,0.14)",
+    border: "1px solid var(--app-border)",
     background: "linear-gradient(135deg, rgba(255,255,255,0.68), rgba(230,240,255,0.42))",
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.75), 0 8px 18px rgba(56,84,131,0.16)",
   },

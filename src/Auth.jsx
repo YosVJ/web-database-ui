@@ -21,6 +21,8 @@ const TEXT = {
     note: "Secure, clean, and ready when you are.",
     signedInOk: "Signed in successfully. Profile synced.",
     signedInSyncFail: "Signed in, but profile sync failed.",
+    loginOkProfileSyncFailed: "Login succeeded, but profile sync failed.",
+    loginOk: "Login succeeded.",
     accountCreated: "Account created. You can now log in.",
     checkEmail: "Account created. Check your email to confirm, then log in.",
     welcomeBack: "Welcome back! Logged in and profile synced.",
@@ -45,6 +47,8 @@ const TEXT = {
     note: "Ligtas, maayos, at handa kapag ikaw ay handa.",
     signedInOk: "Matagumpay na naka-login. Na-sync ang profile.",
     signedInSyncFail: "Naka-login, pero hindi na-sync ang profile.",
+    loginOkProfileSyncFailed: "Matagumpay ang login, pero hindi na-sync ang profile.",
+    loginOk: "Matagumpay ang login.",
     accountCreated: "Nagawa ang account. Maaari ka nang mag-login.",
     checkEmail: "Nagawa ang account. I-check ang email para i-confirm, pagkatapos mag-login.",
     welcomeBack: "Welcome back! Naka-login at na-sync ang profile.",
@@ -53,6 +57,11 @@ const TEXT = {
     msSsoTitle: "Microsoft SSO gamit ang Supabase",
   },
 };
+
+function logAuthFlow(stage, details = {}) {
+  if (!import.meta.env.DEV) return;
+  console.info("[AuthFlow]", stage, details);
+}
 
 function MicrosoftIcon({ size = 18 }) {
   return (
@@ -87,10 +96,12 @@ function getGreetingByHour(hour) {
   return "Good to see you";
 }
 
-async function saveUserProfile(user, provider) {
+async function saveUserProfile(user, provider, source = "unknown") {
   if (!user) return;
 
   const fullName = user.user_metadata?.full_name || user.user_metadata?.name || null;
+
+  logAuthFlow("profile_sync_start", { source, userId: user.id, provider: provider || "unknown" });
 
   const { error } = await supabase.from("profiles").upsert({
     id: user.id,
@@ -99,7 +110,17 @@ async function saveUserProfile(user, provider) {
     provider: provider || "unknown",
   });
 
-  if (error) throw error;
+  if (error) {
+    logAuthFlow("profile_sync_error", {
+      source,
+      userId: user.id,
+      provider: provider || "unknown",
+      errorMessage: error.message,
+    });
+    throw error;
+  }
+
+  logAuthFlow("profile_sync_success", { source, userId: user.id, provider: provider || "unknown" });
 }
 
 /**
@@ -143,11 +164,17 @@ export default function Auth({ hideLocalDock = false }) {
       if (event === "SIGNED_IN" && session?.user) {
         try {
           const provider = session.user.app_metadata?.provider || "oauth";
-          await saveUserProfile(session.user, provider);
+          logAuthFlow("auth_state_signed_in", { userId: session.user.id, provider });
+          await saveUserProfile(session.user, provider, "auth_state_change");
           setMsg(t.signedInOk);
           setErr("");
         } catch (e) {
-          setErr(e?.message || t.signedInSyncFail);
+          logAuthFlow("auth_state_profile_sync_failed", {
+            userId: session.user.id,
+            errorMessage: e?.message || "unknown_error",
+          });
+          setMsg(t.loginOkProfileSyncFailed);
+          setErr(t.signedInSyncFail);
         }
       }
     });
@@ -192,10 +219,25 @@ export default function Auth({ hideLocalDock = false }) {
         email,
         password,
       });
-      if (error) throw error;
 
-      await saveUserProfile(data.user, "email");
-      setMsg(t.welcomeBack);
+      if (error) {
+        logAuthFlow("auth_login_error", { errorMessage: error.message });
+        throw error;
+      }
+
+      logAuthFlow("auth_login_success", { userId: data?.user?.id, provider: "email" });
+
+      try {
+        await saveUserProfile(data.user, "email", "password_login");
+        setMsg(t.welcomeBack);
+      } catch (profileErr) {
+        logAuthFlow("post_login_profile_sync_failed", {
+          userId: data?.user?.id,
+          errorMessage: profileErr?.message || "unknown_error",
+        });
+        setMsg(t.loginOk);
+        setErr(t.loginOkProfileSyncFailed);
+      }
     } catch (e) {
       setErr(e?.message || t.loginFailed);
     } finally {
