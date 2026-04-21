@@ -372,7 +372,7 @@ export default function SpaceShell({
   );
 
   return (
-    <div className="space-shell-root" style={outer} data-quality={quality}>
+    <div className="space-shell-root light-heaven-shell" style={outer} data-quality={quality}>
       <div className="space-shell-fixed nebula vignette grain" />
 
       <canvas
