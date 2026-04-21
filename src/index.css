@@ -18,11 +18,16 @@ body,
   background: var(--app-bg, #0a0a0c) !important;
   color: var(--app-text, rgba(235, 244, 255, 0.96));
   overflow: hidden !important; /* kills page scrolling */
-  transition: background 360ms ease, color 260ms ease;
+  transition: background-color var(--transition-theme), color var(--transition-theme);
 }
 
 body {
   background: var(--app-art-bg, var(--app-bg, #0a0a0c)) !important;
+  color: var(--app-text, rgba(235, 244, 255, 0.96));
+}
+
+html[data-theme="light"] body {
+  text-shadow: var(--text-polish, none);
 }
 
 /* Pin the whole app to the viewport so nothing can push layout bigger */

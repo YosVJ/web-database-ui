@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "./lib/supabaseClient";
 import { useLangContext } from "./i18n/langContextStore";
+import { useTheme } from "./theme/ThemeProvider.jsx";
 
 const TEXT = {
   en: {
@@ -121,38 +122,7 @@ export default function Auth({ hideLocalDock = false }) {
   const { lang } = useLangContext();
   const t = TEXT[lang] || TEXT.en;
 
-  // Theme is read from localStorage (TopBar owns the toggle)
-  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
-  const isLight = theme === "light";
-
-  // keep theme in sync if TopBar changes it
-  useEffect(() => {
-    const sync = () => {
-      const fromAttr = document.documentElement.getAttribute("data-theme");
-      setTheme(fromAttr || localStorage.getItem("theme") || "dark");
-    };
-
-    const onStorage = (e) => {
-      if (e.key === "theme") sync();
-    };
-    const onFocus = () => sync();
-
-    const observer = new MutationObserver(sync);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["data-theme"],
-    });
-
-    sync();
-    window.addEventListener("storage", onStorage);
-    window.addEventListener("focus", onFocus);
-
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("storage", onStorage);
-      window.removeEventListener("focus", onFocus);
-    };
-  }, []);
+  const { isLight } = useTheme();
 
   // Live time + greeting (displayed in hero only, not in dock)
   const [now, setNow] = useState(() => new Date());

@@ -5,6 +5,7 @@ import { useLangContext } from "./i18n/langContextStore";
 import { motion } from "framer-motion";
 import GridSwap from "./ui/GridSwap";
 import { createPortal } from "react-dom";
+import { useTheme } from "./theme/ThemeProvider.jsx";
 
 const MotionDiv = motion.div;
 const DEMO_BASE_MS = Date.parse("2026-04-15T00:00:00.000Z");
@@ -29,8 +30,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
 
   const [draggingId, setDraggingId] = useState(null);
 
-  const theme = (localStorage.getItem("theme") || "dark").toLowerCase();
-  const isLight = theme === "light";
+  const { theme, isLight } = useTheme();
 
   const ui = isLight
     ? {
@@ -284,24 +284,28 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
       for (const company of initialCompanies) {
         try {
           const { data, error } = await supabase
-          .from("purchase_requests")
-          .select("id, pr_no, status, due_at, blocked_reason, next_actor, updated_at, created_at")
-          .eq("company_id", company.id)
-          .order("created_at", { ascending: true })
-          .limit(1)
-          .maybeSingle();
-        
-        if (cancelled) return;
-        if (!error && data) {
-          results[company.id] = {
-            ...data,
-            prNo: data.pr_no,
-            dueAt: data.due_at,
-            blockedReason: data.blocked_reason,
-            nextActor: data.next_actor,
-            updatedAt: data.updated_at,
-          };
+            .from("purchase_requests")
+            .select("id, pr_no, status, due_at, blocked_reason, next_actor, updated_at, created_at")
+            .eq("company_id", company.id)
+            .order("created_at", { ascending: true })
+            .limit(1)
+            .maybeSingle();
+
+          if (cancelled) return;
+          if (!error && data) {
+            results[company.id] = {
+              ...data,
+              prNo: data.pr_no,
+              dueAt: data.due_at,
+              blockedReason: data.blocked_reason,
+              nextActor: data.next_actor,
+              updatedAt: data.updated_at,
+            };
+          }
+        } catch (_error) {
+          // keep loading other companies even if one query fails
         }
+      }
 
       if (!cancelled) {
         setActiveByCompany(results);

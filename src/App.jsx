@@ -10,7 +10,7 @@ import TopBar from "./ui/TopBar.jsx";
 import { LangProvider } from "./LangContext.jsx";
 import { useLangContext } from "./i18n/langContextStore";
 import { supabase } from "./lib/supabaseClient";
-import { useTheme } from "./lib/useTheme";
+import { useTheme } from "./theme/ThemeProvider.jsx";
 
 function AppContent() {
   const { lang, setLang, langSaving } = useLangContext();

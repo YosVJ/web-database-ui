@@ -1,27 +1,77 @@
-:root,
-[data-theme="dark"] {
+:root {
+  --radius-xl: 24px;
+  --radius-lg: 18px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+  --transition-theme: 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --transition-fast: 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+html[data-theme="dark"] {
   --app-bg: #0a0a0c;
   --app-text: rgba(235, 244, 255, 0.96);
   --app-surface: rgba(255, 255, 255, 0.05);
   --app-surface-strong: rgba(255, 255, 255, 0.08);
   --app-border: rgba(255, 255, 255, 0.14);
   --app-shadow: 0 18px 70px rgba(0, 0, 0, 0.5);
-
-  /* keep dark appearance exactly neutral under SpaceShell */
   --app-art-bg: var(--app-bg);
+
+  --text-polish: none;
 }
 
-[data-theme="light"] {
+html[data-theme="light"] {
   --app-bg: #eef4ff;
   --app-text: rgba(15, 29, 56, 0.96);
-  --app-surface: rgba(255, 255, 255, 0.58);
-  --app-surface-strong: rgba(255, 255, 255, 0.74);
+  --app-surface: rgba(255, 255, 255, 0.64);
+  --app-surface-strong: rgba(255, 255, 255, 0.8);
   --app-border: rgba(28, 57, 112, 0.18);
   --app-shadow: 0 18px 50px rgba(49, 83, 145, 0.18);
-
   --app-art-bg:
     radial-gradient(1100px 700px at 8% 12%, rgba(120, 167, 255, 0.32), transparent 58%),
     radial-gradient(900px 680px at 86% 20%, rgba(169, 140, 255, 0.24), transparent 60%),
     radial-gradient(1200px 700px at 50% 90%, rgba(142, 209, 255, 0.22), transparent 62%),
     linear-gradient(180deg, #f6f9ff 0%, #eaf2ff 52%, #edf4ff 100%);
+
+  --text-polish: 0 1px 0 rgba(255, 255, 255, 0.72), 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+html.theme-ready body,
+html.theme-ready [style],
+html.theme-ready button,
+html.theme-ready input,
+html.theme-ready select,
+html.theme-ready textarea,
+html.theme-ready svg,
+html.theme-ready path {
+  transition:
+    background-color var(--transition-theme),
+    color var(--transition-theme),
+    border-color var(--transition-theme),
+    box-shadow var(--transition-theme),
+    opacity var(--transition-fast);
+}
+
+html[data-theme="light"] h1,
+html[data-theme="light"] h2,
+html[data-theme="light"] h3,
+html[data-theme="light"] h4,
+html[data-theme="light"] label,
+html[data-theme="light"] [data-kpi],
+html[data-theme="light"] [data-pill],
+html[data-theme="light"] [data-stat] {
+  text-shadow: var(--text-polish);
+  -webkit-text-stroke: 0.15px rgba(24, 34, 53, 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-ready body,
+  html.theme-ready [style],
+  html.theme-ready button,
+  html.theme-ready input,
+  html.theme-ready select,
+  html.theme-ready textarea,
+  html.theme-ready svg,
+  html.theme-ready path {
+    transition: none !important;
+  }
 }
