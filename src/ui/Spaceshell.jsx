@@ -1,5 +1,6 @@
 ﻿// src/ui/Spaceshell.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useTheme } from "../theme/ThemeProvider.jsx";
 
 /**
  * SpaceShell (VIBE + THROTTLE)
@@ -75,6 +76,7 @@ export default function SpaceShell({
   showMeteors = false,
 }) {
   const canvasRef = useRef(null);
+  const { isLight } = useTheme();
   const { paused, quality } = usePerfProfile();
 
   // styles injected once (versioned)
@@ -129,6 +131,13 @@ export default function SpaceShell({
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.25'/%3E%3C/svg%3E");
         mix-blend-mode: overlay;
         opacity: 0.10;
+      }
+
+      .sky-shell-light {
+        background:
+          radial-gradient(1200px 680px at 18% 8%, rgba(255,255,255,0.90), rgba(255,255,255,0) 62%),
+          radial-gradient(900px 520px at 84% 20%, rgba(255,255,255,0.72), rgba(255,255,255,0) 60%),
+          linear-gradient(180deg, var(--bg-sky-top) 0%, var(--bg-sky-mid) 46%, var(--bg-sky-bottom) 100%);
       }
     `;
     document.head.appendChild(s);
@@ -290,7 +299,7 @@ export default function SpaceShell({
         raf = requestAnimationFrame(tick);
         return;
       }
-      if (mode === "off") {
+      if (mode === "off" || isLight) {
         ctx.clearRect(0, 0, state.w, state.h);
         raf = requestAnimationFrame(tick);
         return;
@@ -333,7 +342,7 @@ export default function SpaceShell({
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
     };
-  }, [showMeteors, paused, quality]);
+  }, [showMeteors, paused, quality, isLight]);
 
   const outer = useMemo(
     () => ({
@@ -373,15 +382,15 @@ export default function SpaceShell({
 
   return (
     <div className="space-shell-root light-heaven-shell" style={outer} data-quality={quality}>
-      <div className="space-shell-fixed nebula vignette grain" />
+      <div className={`space-shell-fixed ${isLight ? "sky-shell-light" : "nebula vignette grain"}`} />
 
       <canvas
         ref={canvasRef}
         className="space-shell-fixed"
         style={{
           zIndex: 2,
-          mixBlendMode: "screen",
-          opacity: quality === "off" ? 0 : 0.95,
+          mixBlendMode: isLight ? "normal" : "screen",
+          opacity: quality === "off" || isLight ? 0 : 0.95,
         }}
       />
 
