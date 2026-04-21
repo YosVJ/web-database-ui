@@ -259,7 +259,12 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
       const userId = session?.user?.id;
       if (!userId) return;
 
-      const { data, error } = await supabase.from("profiles").select("language").eq("id", userId).maybeSingle();
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("language")
+        .eq("id", userId)
+        .maybeSingle();
+
       if (cancelled) return;
 
       const next = data?.language;
@@ -268,6 +273,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
     }
 
     loadLanguage();
+
     return () => {
       cancelled = true;
     };
@@ -277,39 +283,72 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
   useEffect(() => {
     let cancelled = false;
 
+    function toUiActiveRequest(data) {
+      return {
+        id: data.id,
+        status: data.status,
+        created_at: data.created_at,
+        prNo: data.pr_no,
+        dueAt: data.due_at,
+        blockedReason: data.blocked_reason,
+        nextActor: data.next_actor,
+        updatedAt: data.updated_at,
+      };
+    }
+
     async function loadActive() {
       setLoadingActive(true);
-      const results = {};
 
-      for (const company of initialCompanies) {
-        try {
-          const { data, error } = await supabase
-          .from("purchase_requests")
-          .select("id, pr_no, status, due_at, blocked_reason, next_actor, updated_at, created_at")
-          .eq("company_id", company.id)
-          .order("created_at", { ascending: true })
-          .limit(1)
-          .maybeSingle();
-        
+      try {
+        const settledResults = await Promise.allSettled(
+          initialCompanies.map(async (company) => {
+            try {
+              const { data, error } = await supabase
+                .from("purchase_requests")
+                .select("id, pr_no, status, due_at, blocked_reason, next_actor, updated_at, created_at")
+                .eq("company_id", company.id)
+                .order("created_at", { ascending: true })
+                .limit(1)
+                .maybeSingle();
+
+              if (error) {
+                console.error(`Error loading request for ${company.id}:`, error);
+                return [company.id, null];
+              }
+
+              if (!data) return [company.id, null];
+
+              return [company.id, toUiActiveRequest(data)];
+            } catch (error) {
+              console.error(`Unexpected error loading request for ${company.id}:`, error);
+              return [company.id, null];
+            }
+          })
+        );
+
         if (cancelled) return;
-        if (!error && data) {
-          results[company.id] = {
-            ...data,
-            prNo: data.pr_no,
-            dueAt: data.due_at,
-            blockedReason: data.blocked_reason,
-            nextActor: data.next_actor,
-            updatedAt: data.updated_at,
-          };
+
+        const nextActiveByCompany = {};
+        for (const result of settledResults) {
+          if (result.status === "fulfilled") {
+            const [companyId, value] = result.value;
+            if (value) nextActiveByCompany[companyId] = value;
+          }
         }
 
-      if (!cancelled) {
-        setActiveByCompany(results);
-        setLoadingActive(false);
+        setActiveByCompany(nextActiveByCompany);
+      } catch (err) {
+        if (!cancelled) {
+          console.error("Failed to load active purchase requests", err);
+          setActiveByCompany({});
+        }
+      } finally {
+        if (!cancelled) setLoadingActive(false);
       }
     }
 
     loadActive();
+
     return () => {
       cancelled = true;
     };
@@ -389,11 +428,10 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
     const absHrs = Math.max(0, Math.floor(Math.abs(dueMs) / (1000 * 60 * 60)));
 
     if (dueMs < 0) {
-      // overdue: faster blink when more overdue
       const pulseMs = absHrs <= 2 ? 520 : absHrs <= 6 ? 680 : 900;
       return { kind: "overdue", text: `${t("overdue")} ${absHrs}h`, pulseMs };
     }
-    // due: slow / subtle
+
     return { kind: "due", text: `${t("due")} ${absHrs}h`, pulseMs: 1400 };
   }
 
@@ -619,7 +657,6 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
       document.head.appendChild(s);
     }
 
-    // ✅ urgency animations for pill (NO corner box)
     if (!document.getElementById("dashboard-urgency-css")) {
       const s = document.createElement("style");
       s.id = "dashboard-urgency-css";
@@ -847,8 +884,6 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                   justifyContent: "center",
                   padding: "6px 10px",
                   borderRadius: 999,
-
-                  // ✅ pill border only
                   background: ui.panelBg,
                   backdropFilter: "blur(10px)",
                   color: ui.cardText,
@@ -857,7 +892,6 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                   textAlign: "center",
                   maxWidth: 170,
                   userSelect: "none",
-
                   border:
                     chip.kind === "overdue"
                       ? "1px solid rgba(255,56,120,0.78)"
@@ -866,7 +900,6 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                       : chip.kind === "blocked"
                       ? "1px solid rgba(255,120,60,0.58)"
                       : "1px solid rgba(0,206,255,0.45)",
-
                   boxShadow:
                     chip.kind === "overdue"
                       ? "0 0 34px rgba(255,56,120,0.60)"
@@ -875,10 +908,6 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                       : chip.kind === "blocked"
                       ? "0 0 22px rgba(255,120,60,0.32)"
                       : "0 0 18px rgba(0,206,255,0.28)",
-
-                  // ✅ animation behavior:
-                  // due = subtle color shift (no pulse)
-                  // overdue = stronger blink (faster)
                   animation:
                     chip.kind === "overdue"
                       ? `overdueBlink ${Math.max(0.22, (chip.pulseMs ?? 700) / 1000)}s ease-in-out infinite`
@@ -901,7 +930,6 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
 
   return (
     <div style={pageWrap}>
-      {/* Space clouds removed: keep background clean for starfield */}
       <div style={inner}>
         <div style={header}>
           <h1 style={titleRow}>
