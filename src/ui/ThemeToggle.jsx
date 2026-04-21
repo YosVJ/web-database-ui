@@ -52,7 +52,7 @@ export default function ThemeToggle({ theme = "dark", onToggle = noop, disabled 
 
 const styles = {
   button: {
-    border: "1px solid rgba(255,255,255,0.14)",
+    border: "1px solid var(--app-border)",
     borderRadius: 999,
     padding: 4,
     width: 58,
@@ -64,12 +64,12 @@ const styles = {
     transition: "background 280ms ease, border-color 280ms ease, box-shadow 280ms ease, opacity 200ms ease",
   },
   buttonDark: {
-    background: "rgba(255,255,255,0.06)",
+    background: "var(--topbar-pill-bg)",
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
   },
   buttonLight: {
-    background: "rgba(18, 28, 48, 0.08)",
-    border: "1px solid rgba(20,40,90,0.15)",
+    background: "var(--topbar-pill-bg)",
+    border: "1px solid var(--app-border)",
     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.55)",
   },
   track: {
