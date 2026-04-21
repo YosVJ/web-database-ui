@@ -161,6 +161,12 @@ html[data-theme="light"] body {
     linear-gradient(180deg, var(--bg-sky-top) 0%, var(--bg-sky-mid) 46%, var(--bg-sky-bottom) 100%) !important;
 }
 
+/* Root wrapper is fixed and had a flat fallback color in index.css.
+   Keep it transparent in light mode so SkyShell depth is visible. */
+html[data-theme="light"] #root {
+  background: transparent !important;
+}
+
 [data-theme="light"] .light-heaven-shell::before,
 [data-theme="light"] .light-heaven-shell::after {
   content: "";
@@ -268,22 +274,6 @@ html[data-theme="light"] .theme-pill {
 [data-theme="light"] .light-heaven-shell .space-shell-content {
   position: relative;
   z-index: 2;
-}
-
-/* Light mode: disable SpaceShell's dark-space layers (CSS only; no behavior changes) */
-html[data-theme="light"] .space-shell-fixed.nebula {
-  background: transparent !important;
-  filter: none !important;
-}
-
-html[data-theme="light"] .space-shell-fixed.space-shell-fixed {
-  /* keep layer but make star canvas effectively invisible in light mode */
-  opacity: 0 !important;
-}
-
-html[data-theme="light"] .vignette::before,
-html[data-theme="light"] .grain::after {
-  opacity: 0 !important;
 }
 
 html.theme-ready body,
