@@ -155,11 +155,12 @@ export default function SpaceShell({
         inset: 0;
         overflow: hidden;
         z-index: 1;
-        background:
-          radial-gradient(1200px 620px at 50% -8%, rgba(255,255,255,0.96), rgba(255,255,255,0) 58%),
-          radial-gradient(980px 500px at 18% 20%, rgba(255,255,255,0.42), rgba(255,255,255,0) 62%),
-          radial-gradient(920px 500px at 84% 22%, rgba(255,255,255,0.38), rgba(255,255,255,0) 62%),
-          linear-gradient(180deg, var(--bg-sky-top) 0%, var(--bg-sky-mid) 48%, var(--bg-sky-bottom) 100%);
+        background: linear-gradient(
+          180deg,
+          #f8fbff 0%,
+          #edf5ff 45%,
+          #e8f1fb 100%
+        );
       }
 
       .sky-shell-light::before,

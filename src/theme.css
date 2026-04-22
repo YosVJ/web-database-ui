@@ -161,50 +161,6 @@ html[data-theme="light"] body {
     linear-gradient(180deg, var(--bg-sky-top) 0%, var(--bg-sky-mid) 46%, var(--bg-sky-bottom) 100%) !important;
 }
 
-[data-theme="light"] .light-heaven-shell::before,
-[data-theme="light"] .light-heaven-shell::after {
-  content: "";
-  position: absolute;
-  inset: -8% -12%;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.58;
-  will-change: transform;
-  background-repeat: no-repeat;
-}
-
-[data-theme="light"] .light-heaven-shell::before {
-  background:
-    radial-gradient(ellipse 34% 12% at 18% 18%, rgba(255, 255, 255, 0.86) 0%, rgba(255, 255, 255, 0.52) 42%, rgba(255, 255, 255, 0) 72%),
-    radial-gradient(ellipse 28% 10% at 52% 16%, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.44) 44%, rgba(255, 255, 255, 0) 74%),
-    radial-gradient(ellipse 32% 11% at 82% 21%, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.38) 40%, rgba(255, 255, 255, 0) 72%);
-  animation: skyDriftFar 140s linear infinite;
-}
-
-[data-theme="light"] .light-heaven-shell::after {
-  background:
-    radial-gradient(ellipse 40% 15% at 24% 66%, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0.30) 42%, rgba(255, 255, 255, 0) 74%),
-    radial-gradient(ellipse 34% 13% at 70% 74%, rgba(255, 255, 255, 0.58) 0%, rgba(255, 255, 255, 0.26) 40%, rgba(255, 255, 255, 0) 72%);
-  animation: skyDriftNear 190s linear infinite;
-}
-
-@keyframes skyDriftFar {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(2.4%, 0.5%, 0); }
-}
-
-@keyframes skyDriftNear {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(-3%, 0.8%, 0); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  [data-theme="light"] .light-heaven-shell::before,
-  [data-theme="light"] .light-heaven-shell::after {
-    animation: none !important;
-  }
-}
-
 /* -------- Light-only Surface + Controls System -------- */
 [data-theme="light"] .auth-card,
 [data-theme="light"] .glass-card,
