@@ -73,6 +73,7 @@ export default function SpaceShell({
   showMeteors = false,
 }) {
   const canvasRef = useRef(null);
+  const skyRef = useRef(null);
   const { isLight } = useTheme();
   const { paused, quality } = usePerfProfile();
 
@@ -153,61 +154,140 @@ export default function SpaceShell({
         position: fixed;
         inset: 0;
         overflow: hidden;
-        background:
-          radial-gradient(1100px 560px at 50% -6%, rgba(255,255,255,0.92), rgba(255,255,255,0) 58%),
-          radial-gradient(900px 460px at 16% 18%, rgba(255,255,255,0.34), rgba(255,255,255,0) 60%),
-          radial-gradient(860px 420px at 86% 20%, rgba(255,255,255,0.30), rgba(255,255,255,0) 62%),
-          linear-gradient(180deg, var(--bg-sky-top) 0%, var(--bg-sky-mid) 48%, var(--bg-sky-bottom) 100%);
-      }
-
-      .sky-shell-light::before,
-      .sky-shell-light::after {
-        content: "";
-        position: absolute;
-        inset: -10% -14%;
-        pointer-events: none;
-        will-change: transform;
-        background-repeat: no-repeat;
+        z-index: 1;
+        background: linear-gradient(180deg, #f8fbff 0%, #edf5ff 45%, #e8f1fb 100%);
       }
 
       .sky-shell-light::before {
-        opacity: 0.74;
+        content: "";
+        position: absolute;
+        inset: -8% -12% 52%;
+        pointer-events: none;
+        background: radial-gradient(1100px 520px at 50% 0%, rgba(255,255,255,0.88), rgba(255,255,255,0) 72%);
+        opacity: 0.9;
+      }
+
+      .sky-cloud-layer {
+        position: absolute;
+        inset: -10% -14%;
+        pointer-events: none;
+        z-index: 2;
+        will-change: transform;
+        background-repeat: no-repeat;
+        --sky-drift-x: 0%;
+        --sky-drift-y: 0%;
+      }
+
+      .sky-cloud-back {
+        opacity: 0.58;
         background:
-          radial-gradient(ellipse 30% 10% at 12% 18%, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.62) 38%, rgba(255,255,255,0) 72%),
-          radial-gradient(ellipse 24% 8% at 34% 14%, rgba(255,255,255,0.84) 0%, rgba(255,255,255,0.46) 42%, rgba(255,255,255,0) 74%),
-          radial-gradient(ellipse 28% 9% at 58% 20%, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.52) 40%, rgba(255,255,255,0) 74%),
-          radial-gradient(ellipse 24% 8% at 82% 16%, rgba(255,255,255,0.86) 0%, rgba(255,255,255,0.42) 38%, rgba(255,255,255,0) 72%);
-        animation: skyCloudDriftFar 168s linear infinite;
+          radial-gradient(ellipse 30% 10% at 10% 18%, rgba(255,255,255,0.80) 0%, rgba(255,255,255,0.42) 38%, rgba(255,255,255,0) 72%),
+          radial-gradient(ellipse 34% 12% at 46% 14%, rgba(255,255,255,0.76) 0%, rgba(255,255,255,0.38) 40%, rgba(255,255,255,0) 74%),
+          radial-gradient(ellipse 30% 10% at 84% 20%, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.40) 38%, rgba(255,255,255,0) 72%);
+        transform: translate3d(
+          calc(var(--sky-parallax-x, 0px) * -0.15 + var(--sky-drift-x)),
+          calc(var(--sky-parallax-y, 0px) * -0.10 + var(--sky-drift-y)),
+          0
+        );
+        animation: skyCloudDriftBack 84s linear infinite alternate;
       }
 
-      .sky-shell-light::after {
-        opacity: 0.52;
+      .sky-cloud-mid {
+        opacity: 0.70;
         background:
-          radial-gradient(ellipse 34% 12% at 18% 62%, rgba(255,255,255,0.70) 0%, rgba(255,255,255,0.34) 40%, rgba(255,255,255,0) 74%),
-          radial-gradient(ellipse 26% 10% at 46% 70%, rgba(255,255,255,0.66) 0%, rgba(255,255,255,0.28) 38%, rgba(255,255,255,0) 74%),
-          radial-gradient(ellipse 30% 11% at 78% 66%, rgba(255,255,255,0.64) 0%, rgba(255,255,255,0.26) 40%, rgba(255,255,255,0) 74%);
-        animation: skyCloudDriftNear 228s linear infinite;
+          radial-gradient(ellipse 28% 11% at 14% 40%, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.50) 38%, rgba(255,255,255,0) 74%),
+          radial-gradient(ellipse 30% 12% at 48% 46%, rgba(255,255,255,0.84) 0%, rgba(255,255,255,0.44) 38%, rgba(255,255,255,0) 74%),
+          radial-gradient(ellipse 28% 11% at 84% 42%, rgba(255,255,255,0.86) 0%, rgba(255,255,255,0.48) 38%, rgba(255,255,255,0) 74%);
+        transform: translate3d(
+          calc(var(--sky-parallax-x, 0px) * -0.38 + var(--sky-drift-x)),
+          calc(var(--sky-parallax-y, 0px) * -0.24 + var(--sky-drift-y)),
+          0
+        );
+        animation: skyCloudDriftMid 58s linear infinite alternate;
       }
 
-      @keyframes skyCloudDriftFar {
-        from { transform: translate3d(0, 0, 0); }
-        to { transform: translate3d(4.5%, 1.2%, 0); }
+      .sky-cloud-front {
+        opacity: 0.82;
+        background:
+          radial-gradient(ellipse 34% 14% at 18% 68%, rgba(255,255,255,0.94) 0%, rgba(255,255,255,0.56) 36%, rgba(255,255,255,0) 74%),
+          radial-gradient(ellipse 30% 13% at 54% 74%, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.52) 36%, rgba(255,255,255,0) 74%),
+          radial-gradient(ellipse 34% 14% at 90% 66%, rgba(255,255,255,0.90) 0%, rgba(255,255,255,0.52) 36%, rgba(255,255,255,0) 74%);
+        transform: translate3d(
+          calc(var(--sky-parallax-x, 0px) * -0.72 + var(--sky-drift-x)),
+          calc(var(--sky-parallax-y, 0px) * -0.40 + var(--sky-drift-y)),
+          0
+        );
+        animation: skyCloudDriftFront 42s linear infinite alternate;
       }
 
-      @keyframes skyCloudDriftNear {
-        from { transform: translate3d(0, 0, 0); }
-        to { transform: translate3d(-6%, 1.6%, 0); }
+      @keyframes skyCloudDriftBack {
+        from { --sky-drift-x: 0%; --sky-drift-y: 0%; }
+        to { --sky-drift-x: 4.2%; --sky-drift-y: 1.4%; }
+      }
+
+      @keyframes skyCloudDriftMid {
+        from { --sky-drift-x: 0%; --sky-drift-y: 0%; }
+        to { --sky-drift-x: -6.4%; --sky-drift-y: 1.8%; }
+      }
+
+      @keyframes skyCloudDriftFront {
+        from { --sky-drift-x: 0%; --sky-drift-y: 0%; }
+        to { --sky-drift-x: 8.2%; --sky-drift-y: 2.4%; }
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .sky-shell-light::before,
-        .sky-shell-light::after {
+        .sky-cloud-layer {
           animation: none !important;
+          transform: none !important;
         }
       }
     `;
     document.head.appendChild(s);
   }, []);
+
+  useEffect(() => {
+    if (!isLight || typeof window === "undefined") return undefined;
+    const sky = skyRef.current;
+    if (!sky) return undefined;
+
+    let raf = 0;
+    let tx = 0;
+    let ty = 0;
+    let cx = 0;
+    let cy = 0;
+    const maxX = 22;
+    const maxY = 14;
+
+    const update = () => {
+      cx += (tx - cx) * 0.07;
+      cy += (ty - cy) * 0.07;
+      sky.style.setProperty("--sky-parallax-x", `${cx.toFixed(2)}px`);
+      sky.style.setProperty("--sky-parallax-y", `${cy.toFixed(2)}px`);
+      raf = window.requestAnimationFrame(update);
+    };
+
+    const onPointerMove = (e) => {
+      const nx = e.clientX / Math.max(1, window.innerWidth) - 0.5;
+      const ny = e.clientY / Math.max(1, window.innerHeight) - 0.5;
+      tx = nx * maxX;
+      ty = ny * maxY;
+    };
+
+    const onPointerLeave = () => {
+      tx = 0;
+      ty = 0;
+    };
+
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("pointerleave", onPointerLeave);
+    raf = window.requestAnimationFrame(update);
+
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerleave", onPointerLeave);
+      window.cancelAnimationFrame(raf);
+    };
+  }, [isLight]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -442,7 +522,15 @@ export default function SpaceShell({
 
   return (
     <div className="space-shell-root light-heaven-shell" style={outer} data-quality={quality}>
-      <div className={`space-shell-fixed ${isLight ? "sky-shell-light" : "nebula vignette grain"}`} />
+      <div ref={skyRef} className={`space-shell-fixed ${isLight ? "sky-shell-light" : "nebula vignette grain"}`}>
+        {isLight ? (
+          <>
+            <div className="sky-cloud-layer sky-cloud-back" />
+            <div className="sky-cloud-layer sky-cloud-mid" />
+            <div className="sky-cloud-layer sky-cloud-front" />
+          </>
+        ) : null}
+      </div>
 
       <canvas
         ref={canvasRef}
