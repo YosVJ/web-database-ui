@@ -174,8 +174,6 @@ export default function SpaceShell({
         z-index: 2;
         will-change: transform;
         background-repeat: no-repeat;
-        --sky-drift-x: 0%;
-        --sky-drift-y: 0%;
       }
 
       .sky-cloud-back {
@@ -184,12 +182,8 @@ export default function SpaceShell({
           radial-gradient(ellipse 30% 10% at 10% 18%, rgba(255,255,255,0.80) 0%, rgba(255,255,255,0.42) 38%, rgba(255,255,255,0) 72%),
           radial-gradient(ellipse 34% 12% at 46% 14%, rgba(255,255,255,0.76) 0%, rgba(255,255,255,0.38) 40%, rgba(255,255,255,0) 74%),
           radial-gradient(ellipse 30% 10% at 84% 20%, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.40) 38%, rgba(255,255,255,0) 72%);
-        transform: translate3d(
-          calc(var(--sky-parallax-x, 0px) * -0.15 + var(--sky-drift-x)),
-          calc(var(--sky-parallax-y, 0px) * -0.10 + var(--sky-drift-y)),
-          0
-        );
-        animation: skyCloudDriftBack 84s linear infinite alternate;
+        translate: calc(var(--sky-parallax-x, 0px) * -0.15) calc(var(--sky-parallax-y, 0px) * -0.10);
+        animation: skyCloudBack 84s linear infinite alternate;
       }
 
       .sky-cloud-mid {
@@ -198,12 +192,8 @@ export default function SpaceShell({
           radial-gradient(ellipse 28% 11% at 14% 40%, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.50) 38%, rgba(255,255,255,0) 74%),
           radial-gradient(ellipse 30% 12% at 48% 46%, rgba(255,255,255,0.84) 0%, rgba(255,255,255,0.44) 38%, rgba(255,255,255,0) 74%),
           radial-gradient(ellipse 28% 11% at 84% 42%, rgba(255,255,255,0.86) 0%, rgba(255,255,255,0.48) 38%, rgba(255,255,255,0) 74%);
-        transform: translate3d(
-          calc(var(--sky-parallax-x, 0px) * -0.38 + var(--sky-drift-x)),
-          calc(var(--sky-parallax-y, 0px) * -0.24 + var(--sky-drift-y)),
-          0
-        );
-        animation: skyCloudDriftMid 58s linear infinite alternate;
+        translate: calc(var(--sky-parallax-x, 0px) * -0.38) calc(var(--sky-parallax-y, 0px) * -0.24);
+        animation: skyCloudMid 58s linear infinite alternate;
       }
 
       .sky-cloud-front {
@@ -212,27 +202,23 @@ export default function SpaceShell({
           radial-gradient(ellipse 34% 14% at 18% 68%, rgba(255,255,255,0.94) 0%, rgba(255,255,255,0.56) 36%, rgba(255,255,255,0) 74%),
           radial-gradient(ellipse 30% 13% at 54% 74%, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.52) 36%, rgba(255,255,255,0) 74%),
           radial-gradient(ellipse 34% 14% at 90% 66%, rgba(255,255,255,0.90) 0%, rgba(255,255,255,0.52) 36%, rgba(255,255,255,0) 74%);
-        transform: translate3d(
-          calc(var(--sky-parallax-x, 0px) * -0.72 + var(--sky-drift-x)),
-          calc(var(--sky-parallax-y, 0px) * -0.40 + var(--sky-drift-y)),
-          0
-        );
-        animation: skyCloudDriftFront 42s linear infinite alternate;
+        translate: calc(var(--sky-parallax-x, 0px) * -0.72) calc(var(--sky-parallax-y, 0px) * -0.40);
+        animation: skyCloudFront 42s linear infinite alternate;
       }
 
-      @keyframes skyCloudDriftBack {
-        from { --sky-drift-x: 0%; --sky-drift-y: 0%; }
-        to { --sky-drift-x: 4.2%; --sky-drift-y: 1.4%; }
+      @keyframes skyCloudBack {
+        from { transform: translate3d(0, 0, 0); }
+        to { transform: translate3d(4.2%, 1.4%, 0); }
       }
 
-      @keyframes skyCloudDriftMid {
-        from { --sky-drift-x: 0%; --sky-drift-y: 0%; }
-        to { --sky-drift-x: -6.4%; --sky-drift-y: 1.8%; }
+      @keyframes skyCloudMid {
+        from { transform: translate3d(0, 0, 0); }
+        to { transform: translate3d(-6.4%, 1.8%, 0); }
       }
 
-      @keyframes skyCloudDriftFront {
-        from { --sky-drift-x: 0%; --sky-drift-y: 0%; }
-        to { --sky-drift-x: 8.2%; --sky-drift-y: 2.4%; }
+      @keyframes skyCloudFront {
+        from { transform: translate3d(0, 0, 0); }
+        to { transform: translate3d(8.2%, 2.4%, 0); }
       }
 
       @media (prefers-reduced-motion: reduce) {
