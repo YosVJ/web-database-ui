@@ -156,6 +156,84 @@ html[data-theme="light"] body {
   background: var(--bg-sky-mid) !important;
 }
 
+/* -------- SkyShell v2 static fallback (light mode) --------
+   This mirrors SpaceShell-injected CSS so cloud motion still applies
+   if runtime <style> injection is stripped/cached/missed. */
+html[data-theme="light"] .sky-shell-light {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 1;
+  background: linear-gradient(180deg, #f8fbff 0%, #edf5ff 45%, #e8f1fb 100%);
+}
+
+html[data-theme="light"] .sky-shell-light::before {
+  content: "";
+  position: absolute;
+  inset: -8% -12% 52%;
+  pointer-events: none;
+  background: radial-gradient(1100px 520px at 50% 0%, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0) 72%);
+  opacity: 0.9;
+}
+
+html[data-theme="light"] .sky-cloud-layer {
+  position: absolute;
+  inset: -10% -14%;
+  pointer-events: none;
+  z-index: 2;
+  will-change: transform;
+  background-repeat: no-repeat;
+}
+
+html[data-theme="light"] .sky-cloud-back {
+  opacity: 0.58;
+  background:
+    radial-gradient(ellipse 30% 10% at 10% 18%, rgba(255, 255, 255, 0.80) 0%, rgba(255, 255, 255, 0.42) 38%, rgba(255, 255, 255, 0) 72%),
+    radial-gradient(ellipse 34% 12% at 46% 14%, rgba(255, 255, 255, 0.76) 0%, rgba(255, 255, 255, 0.38) 40%, rgba(255, 255, 255, 0) 74%),
+    radial-gradient(ellipse 30% 10% at 84% 20%, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.40) 38%, rgba(255, 255, 255, 0) 72%);
+  animation: skyCloudBack 3s linear infinite alternate !important;
+}
+
+html[data-theme="light"] .sky-cloud-mid {
+  opacity: 0.70;
+  background:
+    radial-gradient(ellipse 28% 11% at 14% 40%, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.50) 38%, rgba(255, 255, 255, 0) 74%),
+    radial-gradient(ellipse 30% 12% at 48% 46%, rgba(255, 255, 255, 0.84) 0%, rgba(255, 255, 255, 0.44) 38%, rgba(255, 255, 255, 0) 74%),
+    radial-gradient(ellipse 28% 11% at 84% 42%, rgba(255, 255, 255, 0.86) 0%, rgba(255, 255, 255, 0.48) 38%, rgba(255, 255, 255, 0) 74%);
+  animation: skyCloudMid 2s linear infinite alternate !important;
+}
+
+html[data-theme="light"] .sky-cloud-front {
+  opacity: 0.82;
+  background:
+    radial-gradient(ellipse 34% 14% at 18% 68%, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.56) 36%, rgba(255, 255, 255, 0) 74%),
+    radial-gradient(ellipse 30% 13% at 54% 74%, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.52) 36%, rgba(255, 255, 255, 0) 74%),
+    radial-gradient(ellipse 34% 14% at 90% 66%, rgba(255, 255, 255, 0.90) 0%, rgba(255, 255, 255, 0.52) 36%, rgba(255, 255, 255, 0) 74%);
+  animation: skyCloudFront 1s linear infinite alternate !important;
+}
+
+@keyframes skyCloudBack {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(4.2%, 1.4%, 0); }
+}
+
+@keyframes skyCloudMid {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-6.4%, 1.8%, 0); }
+}
+
+@keyframes skyCloudFront {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(8.2%, 2.4%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme="light"] .sky-cloud-layer {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
 /* -------- Light-only Surface + Controls System -------- */
 [data-theme="light"] .auth-card,
 [data-theme="light"] .glass-card,
