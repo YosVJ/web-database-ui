@@ -76,139 +76,6 @@ export default function SpaceShell({
   const { isLight } = useTheme();
   const { paused, quality } = usePerfProfile();
 
-  const STYLE_VERSION = "space-shell-vibe-v8";
-
-  useEffect(() => {
-    if (typeof document === "undefined") return;
-
-    const old = Array.from(document.querySelectorAll("style[data-space-shell-style]"));
-    old.forEach((n) => n.parentNode?.removeChild(n));
-
-    const s = document.createElement("style");
-    s.setAttribute("data-space-shell-style", STYLE_VERSION);
-    s.textContent = `
-      .space-shell-root {
-        position: relative;
-        width: 100vw;
-        min-height: 100vh;
-        overflow-x: hidden;
-        background: transparent;
-      }
-
-      .space-shell-fixed {
-        position: fixed;
-        inset: 0;
-        pointer-events: none;
-      }
-
-      .space-shell-content {
-        position: relative;
-        z-index: 5;
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        width: 100%;
-        min-height: 100vh;
-        box-sizing: border-box;
-      }
-
-      .space-shell-panel {
-        width: 100%;
-        border-radius: 26px;
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.10);
-        box-shadow: 0 20px 90px rgba(0,0,0,0.55);
-        backdrop-filter: blur(16px);
-        padding: 22px;
-      }
-
-      .nebula {
-        background:
-          radial-gradient(1200px 800px at 18% 28%, rgba(120,80,255,0.26), rgba(0,0,0,0) 58%),
-          radial-gradient(1000px 700px at 78% 34%, rgba(0,206,255,0.18), rgba(0,0,0,0) 60%),
-          radial-gradient(900px 700px at 70% 78%, rgba(255,88,205,0.10), rgba(0,0,0,0) 60%),
-          radial-gradient(1200px 900px at 30% 80%, rgba(255,180,120,0.06), rgba(0,0,0,0) 60%),
-          linear-gradient(180deg, rgba(8,8,12,1) 0%, rgba(6,6,10,1) 100%);
-        filter: saturate(1.1) contrast(1.02);
-      }
-
-      .vignette::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(circle at 50% 40%, rgba(0,0,0,0) 35%, rgba(0,0,0,0.55) 78%, rgba(0,0,0,0.88) 100%);
-        opacity: 0.90;
-      }
-
-      .grain::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.25'/%3E%3C/svg%3E");
-        mix-blend-mode: overlay;
-        opacity: 0.10;
-      }
-
-      .sky-shell-light {
-        position: fixed;
-        inset: 0;
-        overflow: hidden;
-        background:
-          radial-gradient(1100px 560px at 50% -6%, rgba(255,255,255,0.92), rgba(255,255,255,0) 58%),
-          radial-gradient(900px 460px at 16% 18%, rgba(255,255,255,0.34), rgba(255,255,255,0) 60%),
-          radial-gradient(860px 420px at 86% 20%, rgba(255,255,255,0.30), rgba(255,255,255,0) 62%),
-          linear-gradient(180deg, var(--bg-sky-top) 0%, var(--bg-sky-mid) 48%, var(--bg-sky-bottom) 100%);
-      }
-
-      .sky-shell-light::before,
-      .sky-shell-light::after {
-        content: "";
-        position: absolute;
-        inset: -10% -14%;
-        pointer-events: none;
-        will-change: transform;
-        background-repeat: no-repeat;
-      }
-
-      .sky-shell-light::before {
-        opacity: 0.74;
-        background:
-          radial-gradient(ellipse 30% 10% at 12% 18%, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.62) 38%, rgba(255,255,255,0) 72%),
-          radial-gradient(ellipse 24% 8% at 34% 14%, rgba(255,255,255,0.84) 0%, rgba(255,255,255,0.46) 42%, rgba(255,255,255,0) 74%),
-          radial-gradient(ellipse 28% 9% at 58% 20%, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.52) 40%, rgba(255,255,255,0) 74%),
-          radial-gradient(ellipse 24% 8% at 82% 16%, rgba(255,255,255,0.86) 0%, rgba(255,255,255,0.42) 38%, rgba(255,255,255,0) 72%);
-        animation: skyCloudDriftFar 168s linear infinite;
-      }
-
-      .sky-shell-light::after {
-        opacity: 0.52;
-        background:
-          radial-gradient(ellipse 34% 12% at 18% 62%, rgba(255,255,255,0.70) 0%, rgba(255,255,255,0.34) 40%, rgba(255,255,255,0) 74%),
-          radial-gradient(ellipse 26% 10% at 46% 70%, rgba(255,255,255,0.66) 0%, rgba(255,255,255,0.28) 38%, rgba(255,255,255,0) 74%),
-          radial-gradient(ellipse 30% 11% at 78% 66%, rgba(255,255,255,0.64) 0%, rgba(255,255,255,0.26) 40%, rgba(255,255,255,0) 74%);
-        animation: skyCloudDriftNear 228s linear infinite;
-      }
-
-      @keyframes skyCloudDriftFar {
-        from { transform: translate3d(0, 0, 0); }
-        to { transform: translate3d(4.5%, 1.2%, 0); }
-      }
-
-      @keyframes skyCloudDriftNear {
-        from { transform: translate3d(0, 0, 0); }
-        to { transform: translate3d(-6%, 1.6%, 0); }
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        .sky-shell-light::before,
-        .sky-shell-light::after {
-          animation: none !important;
-        }
-      }
-    `;
-    document.head.appendChild(s);
-  }, []);
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -442,7 +309,15 @@ export default function SpaceShell({
 
   return (
     <div className="space-shell-root light-heaven-shell" style={outer} data-quality={quality}>
-      <div className={`space-shell-fixed ${isLight ? "sky-shell-light" : "nebula vignette grain"}`} />
+      <div className={`space-shell-fixed ${isLight ? "sky-shell-light" : "nebula vignette grain"}`}>
+        {isLight ? (
+          <>
+            <div className="sky-cloud-layer sky-cloud-back" />
+            <div className="sky-cloud-layer sky-cloud-mid" />
+            <div className="sky-cloud-layer sky-cloud-front" />
+          </>
+        ) : null}
+      </div>
 
       <canvas
         ref={canvasRef}
