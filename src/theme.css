@@ -276,8 +276,8 @@ html[data-theme="light"] .space-shell-fixed.nebula {
   filter: none !important;
 }
 
-html[data-theme="light"] .space-shell-fixed.space-shell-fixed {
-  /* keep layer but make star canvas effectively invisible in light mode */
+html[data-theme="light"] .space-shell-stars {
+  /* keep star canvas mounted but hidden in light mode */
   opacity: 0 !important;
 }
 
