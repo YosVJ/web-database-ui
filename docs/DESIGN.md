@@ -1,71 +1,162 @@
-# DESIGN SYSTEM
+# DESIGN SYSTEM: ERP + Web3 Hybrid UI
 
 ## Product
-Internal ERP system for web and mobile-responsive use.
+Internal ERP system inspired by modern Web3 dashboards and premium SaaS interfaces.
 
 ## Design Goal
-Create a clean, modern, enterprise-grade interface that is highly readable, efficient, and professional.
+Create a high-end, modern, and visually engaging ERP UI that combines:
+- Enterprise usability
+- Web3-inspired visuals
+- Clean and structured workflows
 
-## Design Tone
-- Modern
-- Minimal but not empty
-- Professional (B2B)
-- Clean and structured
-- High readability
+## Design Inspiration Sources
+- Web3 wallet dashboard UI (reference image)
+- https://synercore.vercel.app
+- https://jeo-portfolio-08.vercel.app
+
+## Design Direction
+- Dark-first UI with gradient backgrounds
+- Glow accents and soft lighting effects
+- Glassmorphism / layered cards
+- Smooth, modern visual hierarchy
+- Premium, futuristic but still professional
 
 ## Platforms
-- Desktop
-- Tablet
-- Mobile (responsive)
+- Desktop-first
+- Fully responsive (tablet + mobile)
+- Mobile must preserve usability (not just scaled UI)
+
+---
 
 ## Core Screens
 - Login
 - Dashboard
-- Users
+- Sidebar Navigation
+- Users Management
 - Purchase Requests
 - Approval Queue
 - Reports
+- Settings
 
-## Layout
-- Sidebar navigation (desktop)
-- Top bar header
-- Card-based dashboard
-- Table-based data views
+---
+
+## Layout System
+
+### Structure
+- Sidebar (left)
+- Top navigation bar
+- Main content panel
+- Modular card layout
+
+### Sections
+- Hero section (dashboard header)
+- KPI cards
+- Data tables
 - Forms and modals
 
-## Components
-- KPI Cards
-- Tables
-- Forms
-- Buttons
+---
+
+## UI Components
+
+### Core Components
+- Sidebar (collapsible)
+- Top bar (search + profile)
+- Cards (glow + elevation)
+- Tables (clean + readable)
+- Forms (minimal + clear)
+- Tabs (for modules)
+- Buttons (primary + secondary)
 - Status badges
-- Search and filters
-- Modal dialogs
-- Loading states
-- Empty states
+- Notifications
 
-## UI Rules
-- Clean spacing
-- Clear hierarchy
-- Avoid clutter
-- Tables must be readable
-- Forms must be simple
+---
 
-## Color Rules
-- Light mode must feel modern and alive
-- Dark mode must remain clean
-- Use colors for status:
-  - Pending
-  - Approved
-  - Rejected
+## Visual Style
 
-## Mobile Rules
-- Do not shrink desktop UI blindly
-- Stack components properly
-- Maintain usability for forms
+### Background
+- Gradient (dark blue / purple / black)
+- Subtle glow lighting
+- Layered depth
+
+### Cards
+- Soft shadows
+- Slight glass effect
+- Rounded corners
+- Hover elevation
+
+### Colors
+- Primary: Blue / Indigo
+- Accent: Purple / Neon glow
+- Status:
+  - Pending → Yellow
+  - Approved → Green
+  - Rejected → Red
+
+---
+
+## Typography
+- Clean sans-serif
+- Strong headings
+- Clear labels
+- High contrast for readability
+
+---
+
+## Interaction Rules
+- Smooth transitions (150–300ms)
+- Hover feedback (cards + buttons)
+- Click feedback (subtle scale/glow)
+- No heavy animation
+- Keep interactions fast and responsive
+
+---
+
+## UX Rules
+- Dashboard must be instantly readable
+- Tables must prioritize clarity over design
+- Forms must be simple and fast
+- Approval actions must be obvious
+- Navigation must be predictable
+
+---
+
+## Mobile Behavior
+- Sidebar → collapsible menu
+- Cards → stacked layout
+- Tables → scrollable / simplified
+- Forms → vertical layout
+
+---
+
+## Forms & Input Design
+- Clean input fields
+- Clear labels above inputs
+- Inline validation
+- Minimal friction UX
+- Focus highlight glow
+
+---
+
+## Tabs & Navigation
+- Use tabs for:
+  - modules
+  - dashboard sections
+- Active state must be clear
+- Keep transitions smooth
+
+---
 
 ## Constraints
-- No overdesign
-- No unnecessary animation
-- No cluttered UI
-- Focus on usability first
+- Do NOT overdesign like a crypto landing page
+- Do NOT sacrifice readability
+- Do NOT add unnecessary animations
+- Keep enterprise usability first
+- Maintain consistency across all pages
+
+---
+
+## Output Goal
+Generate a complete ERP UI system that:
+- feels modern and premium
+- remains functional and readable
+- supports scalability for future modules
