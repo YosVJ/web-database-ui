@@ -1,162 +1,171 @@
-# DESIGN SYSTEM: ERP + Web3 Hybrid UI
+# DESIGN SYSTEM: SPACESHELL ERP (FUTURISTIC)
 
-## Product
-Internal ERP system inspired by modern Web3 dashboards and premium SaaS interfaces.
-
-## Design Goal
-Create a high-end, modern, and visually engaging ERP UI that combines:
+## Core Identity
+A futuristic, space-inspired ERP UI combining:
+- Web3 dashboard aesthetics
 - Enterprise usability
-- Web3-inspired visuals
-- Clean and structured workflows
+- Realistic tech interface
 
-## Design Inspiration Sources
-- Web3 wallet dashboard UI (reference image)
+Inspired by:
+- Nexa Web3 UI (reference image)
+- Lumina UI structure (your file)
+- https://jeo-portfolio-08.vercel.app (SpaceShell / SkyShell)
 - https://synercore.vercel.app
-- https://jeo-portfolio-08.vercel.app
-
-## Design Direction
-- Dark-first UI with gradient backgrounds
-- Glow accents and soft lighting effects
-- Glassmorphism / layered cards
-- Smooth, modern visual hierarchy
-- Premium, futuristic but still professional
-
-## Platforms
-- Desktop-first
-- Fully responsive (tablet + mobile)
-- Mobile must preserve usability (not just scaled UI)
 
 ---
 
-## Core Screens
-- Login
-- Dashboard
-- Sidebar Navigation
-- Users Management
-- Purchase Requests
-- Approval Queue
-- Reports
-- Settings
+## Visual Concept
+- Deep space background (dark blue / black gradients)
+- Subtle starfield / particle effect (SpaceShell)
+- Soft glow lighting (SkyShell aura)
+- Floating layered cards (glassmorphism)
+- Realistic system dashboard feel
 
 ---
 
-## Layout System
+## UI Architecture
+
+### Layout
+- Left Sidebar (glass + glow active indicator)
+- Top Navigation (blur + transparency)
+- Main Panel (card-based modular UI)
 
 ### Structure
-- Sidebar (left)
-- Top navigation bar
-- Main content panel
-- Modular card layout
-
-### Sections
-- Hero section (dashboard header)
-- KPI cards
-- Data tables
-- Forms and modals
+- Dashboard = command center
+- Cards = modules
+- Tables = data layer
+- Panels = system blocks
 
 ---
 
 ## UI Components
 
-### Core Components
-- Sidebar (collapsible)
-- Top bar (search + profile)
-- Cards (glow + elevation)
-- Tables (clean + readable)
-- Forms (minimal + clear)
-- Tabs (for modules)
-- Buttons (primary + secondary)
-- Status badges
-- Notifications
-
----
-
-## Visual Style
-
-### Background
-- Gradient (dark blue / purple / black)
-- Subtle glow lighting
-- Layered depth
-
 ### Cards
-- Soft shadows
-- Slight glass effect
-- Rounded corners
-- Hover elevation
+- Glassmorphism effect
+- Blur: low-medium (performance safe)
+- Border: subtle gradient edge
+- Glow: soft outer shadow
 
-### Colors
-- Primary: Blue / Indigo
-- Accent: Purple / Neon glow
-- Status:
-  - Pending → Yellow
-  - Approved → Green
-  - Rejected → Red
+### Sidebar
+- Dark surface
+- Active item:
+  - glowing line (left)
+  - neon highlight
+- Icons: minimal + modern
 
----
+### Topbar
+- Frosted glass effect
+- Search input (center-left)
+- Profile + controls (right)
 
-## Typography
-- Clean sans-serif
-- Strong headings
-- Clear labels
-- High contrast for readability
+### KPI Cards
+- Icon + metric + percentage
+- Animated progress line (lightweight)
+- Glow accent per status
 
----
+### Tables
+- Dark surface
+- Row hover glow
+- Status badges:
+  - Pending (yellow glow)
+  - Approved (green glow)
+  - Rejected (red glow)
 
-## Interaction Rules
-- Smooth transitions (150–300ms)
-- Hover feedback (cards + buttons)
-- Click feedback (subtle scale/glow)
-- No heavy animation
-- Keep interactions fast and responsive
-
----
-
-## UX Rules
-- Dashboard must be instantly readable
-- Tables must prioritize clarity over design
-- Forms must be simple and fast
-- Approval actions must be obvious
-- Navigation must be predictable
+### Forms
+- Carved input fields
+- Glow focus effect
+- Minimal borders
+- Clean spacing
 
 ---
 
-## Mobile Behavior
-- Sidebar → collapsible menu
-- Cards → stacked layout
-- Tables → scrollable / simplified
-- Forms → vertical layout
+## Effects System (IMPORTANT)
+
+### Allowed
+- Soft glow (low intensity)
+- Subtle hover animations
+- Gradient highlights
+- Depth layering
+
+### NOT Allowed
+- Heavy blur
+- Laggy animation
+- Overly flashy effects
 
 ---
 
-## Forms & Input Design
-- Clean input fields
-- Clear labels above inputs
-- Inline validation
-- Minimal friction UX
-- Focus highlight glow
+## Color System
+
+### Dark Mode (Primary)
+- Background: deep navy / space black
+- Primary: electric blue (#3D83F5 style)
+- Accent: neon purple / cyan
+- Surface: dark glass panels
+
+### Light Mode (Futuristic Clean)
+
+- Background: soft white / light gray
+- Cards: frosted white glass
+- Accent: soft blue glow
+- Borders: light subtle lines
+
+👉 Light mode must feel:
+- clean
+- futuristic
+- NOT plain white
 
 ---
 
-## Tabs & Navigation
-- Use tabs for:
-  - modules
-  - dashboard sections
-- Active state must be clear
-- Keep transitions smooth
+## Light Mode Preview Behavior
+
+- Glow becomes softer and diffused
+- Shadows replace glow intensity
+- Cards remain layered
+- Maintain “tech UI” feel
+
+---
+
+## Performance Rules
+
+- Must run on low-end devices
+- Reduce blur intensity dynamically
+- Limit shadows and glow stacking
+- Avoid heavy rendering effects
+- Keep DOM simple
+
+---
+
+## Responsive Behavior
+
+- Sidebar collapses to icon mode
+- Cards stack vertically
+- Tables become scrollable
+- Maintain spacing consistency
+
+---
+
+## UX Philosophy
+
+- Feels like a “control system”
+- Fast interaction
+- No confusion in navigation
+- Clear hierarchy always
 
 ---
 
 ## Constraints
-- Do NOT overdesign like a crypto landing page
-- Do NOT sacrifice readability
-- Do NOT add unnecessary animations
-- Keep enterprise usability first
-- Maintain consistency across all pages
+
+- Do NOT turn into landing page design
+- Do NOT copy crypto UI blindly
+- Keep ERP functionality priority
+- Maintain readability at all times
 
 ---
 
 ## Output Goal
-Generate a complete ERP UI system that:
-- feels modern and premium
-- remains functional and readable
-- supports scalability for future modules
+
+Generate a futuristic ERP UI system that:
+- looks like a real tech platform
+- feels premium and modern
+- remains fast and usable
+- supports enterprise workflows
