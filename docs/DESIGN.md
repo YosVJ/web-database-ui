@@ -161,6 +161,48 @@ Inspired by:
 - Maintain readability at all times
 
 ---
+## Responsive & Adaptive System Requirements
+
+### Core Requirement
+The interface must be both responsive and adaptive across desktop, tablet, and mobile.
+
+### Desktop
+- Full sidebar navigation
+- Multi-column dashboard layout
+- Full table view with filters, actions, and status badges
+- Persistent top navigation and quick actions
+
+### Tablet
+- Sidebar may collapse into icon rail or drawer
+- Dashboard cards should reduce to 2-column layout
+- Secondary panels should stack below primary content
+- Tables may reduce visible columns and prioritize essential data
+
+### Mobile
+- Sidebar must become a drawer, overlay menu, or bottom navigation
+- Dashboard cards must stack vertically
+- Tables must transform into card/list view when needed
+- Filters and actions must move into compact menus or modal sheets
+- Forms must use single-column layout with comfortable spacing
+- Approval actions must remain easy to tap with large touch targets
+
+### Adaptive Behavior
+- Do not only shrink the desktop UI
+- Rearrange information density based on screen size
+- Prioritize critical data first on smaller screens
+- Hide or compress non-essential visual elements on mobile
+- Preserve usability for approvals, forms, and tables
+
+### Performance-Aware Responsiveness
+- Reduce blur/glow intensity on low-end devices
+- Avoid heavy layered effects on mobile
+- Keep transitions subtle and lightweight
+- Ensure layouts remain smooth under slower CPU/GPU conditions
+
+### Constraints
+- Mobile and tablet must feel intentionally designed
+- Do not leave mobile as a compressed desktop clone
+- Do not allow tables or forms to become hard to use on small screens
 
 ## Output Goal
 
