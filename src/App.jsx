@@ -5,8 +5,8 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 import LoginPage from "./pages/LoginPage.jsx";
 import Dashboard from "./Dashboard.jsx";
 import RequireAuth from "./routes/RequireAuth.jsx";
+import PageLayout from "./components/layout/PageLayout.jsx";
 import SpaceShell from "./components/layout/SpaceShell.jsx";
-import TopBar from "./components/layout/TopBar.jsx";
 import { LangProvider } from "./LangContext.jsx";
 import { useLangContext } from "./i18n/langContextStore";
 import { supabase } from "./lib/supabaseClient";
@@ -25,13 +25,6 @@ function AppContent() {
 
   return (
     <>
-      <TopBar
-        lang={lang}
-        onLangChange={setLang}
-        langSaving={langSaving}
-        onLogout={handleLogout}
-      />
-
       <Routes>
         <Route path="/" element={<Navigate to="/app" replace />} />
 
@@ -47,11 +40,20 @@ function AppContent() {
         <Route
           path="/app"
           element={
-            <SpaceShell showMeteors={true} panel={false} paddingTop={0} constrain={false}>
+            <PageLayout
+              showMeteors={true}
+              panel={false}
+              paddingTop={0}
+              constrain={false}
+              lang={lang}
+              onLangChange={setLang}
+              langSaving={langSaving}
+              onLogout={handleLogout}
+            >
               <RequireAuth>
                 <Dashboard />
               </RequireAuth>
-            </SpaceShell>
+            </PageLayout>
           }
         />
 
