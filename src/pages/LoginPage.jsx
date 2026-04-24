@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
-import Auth from "../Auth.jsx";
+import Auth from "../pages/auth/Auth.jsx";
 
 export default function LoginPage() {
   const navigate = useNavigate();
