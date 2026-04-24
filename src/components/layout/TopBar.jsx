@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import ThemeToggle from "../ui/ThemeToggle.jsx";
 import GlassClock from "../ui/GlassClock.jsx";
-import { useTheme } from "../../theme/ThemeProvider.jsx";
+import { useTheme } from "../../theme/useTheme.js";
 
 function formatTime12h(date) {
   return date.toLocaleTimeString([], {
