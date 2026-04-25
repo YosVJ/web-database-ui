@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { supabase } from "./lib/supabaseClient";
 import { useLangContext } from "./i18n/langContextStore";
+import { useTheme } from "./theme/ThemeProvider.jsx";
 import { motion } from "framer-motion";
 import GridSwap from "./ui/GridSwap";
 import { createPortal } from "react-dom";
@@ -21,6 +22,8 @@ const DEMO_BASE_MS = Date.parse("2026-04-15T00:00:00.000Z");
 
 export default function Dashboard({ firstName: firstNameProp = "" }) {
   const { lang, setLang } = useLangContext();
+  const { theme } = useTheme();
+  const isLight = theme === "light";
 
   const [session, setSession] = useState(null);
   const [activeByCompany, setActiveByCompany] = useState({});
@@ -29,38 +32,43 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
 
   const [draggingId, setDraggingId] = useState(null);
 
-  const NEON_PRESET = "cyber";
-  const NEON = {
-    subtle: {
-      edgeOpacity: 0.55,
-      edgeGlow1: 18,
-      edgeGlow2: 34,
-      donutGlow1: 10,
-      donutGlow2: 18,
-      textGlow1: 10,
-      textGlow2: 18,
-      blobOpacity: 0.55,
-      blobBlur: 14,
-      tileFloatAmp: 2.0,
-      tileFloatDur: 9.0,
-      hoverLift: -3,
-    },
-    cyber: {
-      edgeOpacity: 0.55,
-      edgeGlow1: 18,
-      edgeGlow2: 38,
-      donutGlow1: 12,
-      donutGlow2: 22,
-      textGlow1: 10,
-      textGlow2: 20,
-      blobOpacity: 0.85,
-      blobBlur: 10,
-      tileFloatAmp: 3.2,
-      tileFloatDur: 7.4,
-      hoverLift: -4,
-    },
-  };
-  const NP = NEON[NEON_PRESET] || NEON.cyber;
+  // Visual presets:
+  // - Dark mode keeps the existing cyber/neon vibe unchanged
+  // - Light mode uses a calm, premium, low-glow preset
+  const VISUAL = useMemo(
+    () => ({
+      light: {
+        edgeOpacity: 0.22,
+        edgeGlow1: 0,
+        edgeGlow2: 0,
+        donutGlow1: 0,
+        donutGlow2: 0,
+        textGlow1: 0,
+        textGlow2: 0,
+        blobOpacity: 0,
+        blobBlur: 0,
+        tileFloatAmp: 1.8,
+        tileFloatDur: 8.8,
+        hoverLift: -3,
+      },
+      dark: {
+        edgeOpacity: 0.55,
+        edgeGlow1: 18,
+        edgeGlow2: 38,
+        donutGlow1: 12,
+        donutGlow2: 22,
+        textGlow1: 10,
+        textGlow2: 20,
+        blobOpacity: 0.85,
+        blobBlur: 10,
+        tileFloatAmp: 3.2,
+        tileFloatDur: 7.4,
+        hoverLift: -4,
+      },
+    }),
+    []
+  );
+  const NP = isLight ? VISUAL.light : VISUAL.dark;
 
   // ---------- Session ----------
   useEffect(() => {
@@ -251,7 +259,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
               updatedAt: data.updated_at,
             };
           }
-        } catch (_error) {
+        } catch {
           // keep loading other companies even if one query fails
         }
       }
@@ -350,21 +358,41 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
     return { kind: "due", text: `${t("due")} ${absHrs}h`, pulseMs: 1400 };
   }
 
-  function accentFor(company) {
+  function accentFor(company, lightMode) {
+    // Dark mode: keep original neon palette untouched.
+    if (!lightMode) {
+      switch (company.accent) {
+        case "cyan":
+          return { ring: "rgba(0,206,255,0.80)", glow: "rgba(0,206,255,0.45)", text: "rgba(0,242,255,0.99)" };
+        case "green":
+          return { ring: "rgba(60,255,170,0.80)", glow: "rgba(60,255,170,0.40)", text: "rgba(140,255,210,0.99)" };
+        case "amber":
+          return { ring: "rgba(255,200,124,0.80)", glow: "rgba(255,200,124,0.40)", text: "rgba(255,230,185,0.99)" };
+        case "magenta":
+          return { ring: "rgba(255,88,205,0.80)", glow: "rgba(255,88,205,0.40)", text: "rgba(255,155,235,0.99)" };
+        case "orange":
+          return { ring: "rgba(255,152,0,0.80)", glow: "rgba(255,152,0,0.40)", text: "rgba(255,200,105,0.99)" };
+        case "purple":
+        default:
+          return { ring: "rgba(129,96,255,0.80)", glow: "rgba(129,96,255,0.40)", text: "rgba(175,145,255,0.99)" };
+      }
+    }
+
+    // Light mode: calm, muted accents (no luminous glow).
     switch (company.accent) {
       case "cyan":
-        return { ring: "rgba(0,206,255,0.80)", glow: "rgba(0,206,255,0.45)", text: "rgba(0,242,255,0.99)" };
+        return { ring: "rgba(103,232,249,0.42)", glow: "rgba(0,0,0,0)", text: "#0891b2" };
       case "green":
-        return { ring: "rgba(60,255,170,0.80)", glow: "rgba(60,255,170,0.40)", text: "rgba(140,255,210,0.99)" };
+        return { ring: "rgba(110,231,183,0.38)", glow: "rgba(0,0,0,0)", text: "#059669" };
       case "amber":
-        return { ring: "rgba(255,200,124,0.80)", glow: "rgba(255,200,124,0.40)", text: "rgba(255,230,185,0.99)" };
+        return { ring: "rgba(251,191,36,0.34)", glow: "rgba(0,0,0,0)", text: "#b45309" };
       case "magenta":
-        return { ring: "rgba(255,88,205,0.80)", glow: "rgba(255,88,205,0.40)", text: "rgba(255,155,235,0.99)" };
+        return { ring: "rgba(244,114,182,0.30)", glow: "rgba(0,0,0,0)", text: "#be185d" };
       case "orange":
-        return { ring: "rgba(255,152,0,0.80)", glow: "rgba(255,152,0,0.40)", text: "rgba(255,200,105,0.99)" };
+        return { ring: "rgba(251,146,60,0.32)", glow: "rgba(0,0,0,0)", text: "#c2410c" };
       case "purple":
       default:
-        return { ring: "rgba(129,96,255,0.80)", glow: "rgba(129,96,255,0.40)", text: "rgba(175,145,255,0.99)" };
+        return { ring: "rgba(167,139,250,0.36)", glow: "rgba(0,0,0,0)", text: "#7c3aed" };
     }
   }
 
@@ -390,7 +418,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
           height={size}
           style={{
             transform: "rotate(-90deg)",
-            filter: `drop-shadow(0 0 ${NP.donutGlow1}px ${glow}) drop-shadow(0 0 ${NP.donutGlow2}px ${glow})`,
+            filter: isLight ? "none" : `drop-shadow(0 0 ${NP.donutGlow1}px ${glow}) drop-shadow(0 0 ${NP.donutGlow2}px ${glow})`,
           }}
         >
           <circle cx={size / 2} cy={size / 2} r={r} stroke={trackColor} strokeWidth={stroke} fill="none" />
@@ -418,7 +446,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
             fontSize: 16,
             letterSpacing: "-0.2px",
             color: neonColor,
-            textShadow: `0 0 ${NP.textGlow1}px ${glow}, 0 0 ${NP.textGlow2}px ${glow}`,
+            textShadow: isLight ? "none" : `0 0 ${NP.textGlow1}px ${glow}, 0 0 ${NP.textGlow2}px ${glow}`,
             userSelect: "none",
           }}
         >
@@ -598,7 +626,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
 
   // ---------- Tile ----------
   function CompanyTile({ company, swapApi }) {
-    const accent = accentFor(company);
+    const accent = accentFor(company, isLight);
     const glow = accent.glow;
     const ring = accent.ring;
 
@@ -658,10 +686,12 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
             inset: 0,
             borderRadius: 18,
             pointerEvents: "none",
-            boxShadow: `inset 0 0 0 1px ${ring},
+            boxShadow: isLight
+              ? `inset 0 0 0 1px ${ring}`
+              : `inset 0 0 0 1px ${ring},
                         0 0 ${NP.edgeGlow1}px ${glow},
                         0 0 ${NP.edgeGlow2}px ${glow}`,
-            opacity: NP.edgeOpacity,
+            opacity: isLight ? 0.18 : NP.edgeOpacity,
           }}
         />
 
@@ -673,7 +703,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                 fontWeight: 900,
                 marginBottom: 2,
                 color: accent.text,
-                textShadow: `0 0 ${NP.textGlow1}px ${glow}, 0 0 ${NP.textGlow2}px ${glow}`,
+                textShadow: isLight ? "none" : `0 0 ${NP.textGlow1}px ${glow}, 0 0 ${NP.textGlow2}px ${glow}`,
                 fontFamily: 'Arial, "Helvetica Neue", Helvetica, sans-serif',
                 letterSpacing: "0.1px",
               }}
@@ -704,7 +734,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                 placeItems: "center",
                 fontWeight: 900,
                 userSelect: "none",
-                boxShadow: `0 0 14px ${glow}`,
+                boxShadow: isLight ? "none" : `0 0 14px ${glow}`,
                 touchAction: "none",
               }}
             >
@@ -721,7 +751,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
             borderRadius: 14,
             border: `1px solid ${ring}`,
             background: "var(--tile-panel-bg)",
-            boxShadow: `0 0 18px ${glow}`,
+            boxShadow: isLight ? "none" : `0 0 18px ${glow}`,
             minHeight: 118,
           }}
         >
@@ -755,7 +785,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
                 fontSize: 11,
                 fontWeight: 900,
                 opacity: 0.95,
-                textShadow: `0 0 ${NP.textGlow1}px ${glow}`,
+                textShadow: isLight ? "none" : `0 0 ${NP.textGlow1}px ${glow}`,
                 userSelect: "none",
               }}
               title="Open FIFO request"
@@ -809,7 +839,7 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
 
                   // ✅ pill border only
                   background: "var(--tile-panel-bg)",
-                  backdropFilter: "blur(10px)",
+                  backdropFilter: isLight ? "blur(6px)" : "blur(10px)",
                   color: "var(--tile-text)",
                   fontSize: 11,
                   fontWeight: 850,
@@ -819,15 +849,17 @@ export default function Dashboard({ firstName: firstNameProp = "" }) {
 
                   border:
                     chip.kind === "overdue"
-                      ? "1px solid rgba(255,56,120,0.78)"
+                      ? (isLight ? "1px solid rgba(244,114,182,0.42)" : "1px solid rgba(255,56,120,0.78)")
                       : chip.kind === "due"
-                      ? "1px solid rgba(255,186,0,0.58)"
+                      ? (isLight ? "1px solid rgba(251,191,36,0.36)" : "1px solid rgba(255,186,0,0.58)")
                       : chip.kind === "blocked"
-                      ? "1px solid rgba(255,120,60,0.58)"
-                      : "1px solid rgba(0,206,255,0.45)",
+                      ? (isLight ? "1px solid rgba(251,146,60,0.36)" : "1px solid rgba(255,120,60,0.58)")
+                      : (isLight ? "1px solid rgba(148,163,184,0.30)" : "1px solid rgba(0,206,255,0.45)"),
 
                   boxShadow:
-                    chip.kind === "overdue"
+                    isLight
+                      ? "0 10px 24px rgba(15,23,42,0.08)"
+                      : chip.kind === "overdue"
                       ? "0 0 34px rgba(255,56,120,0.60)"
                       : chip.kind === "due"
                       ? "0 0 20px rgba(255,186,0,0.34)"

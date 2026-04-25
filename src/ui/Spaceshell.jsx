@@ -1,5 +1,6 @@
 ﻿// src/ui/Spaceshell.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useTheme } from "../theme/ThemeProvider.jsx";
 
 /**
  * SpaceShell (VIBE + THROTTLE)
@@ -31,7 +32,6 @@ function usePerfProfile() {
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
-    // prefers-reduced-motion
     const mql = window.matchMedia?.("(prefers-reduced-motion: reduce)");
     const syncReduced = () => setPrefersReduced(Boolean(mql?.matches));
     syncReduced();
@@ -41,11 +41,9 @@ function usePerfProfile() {
       mql?.addListener?.(syncReduced);
     }
 
-    // pause when tab hidden
     const onVis = () => setPaused(document.hidden);
     onVis();
     document.addEventListener("visibilitychange", onVis);
-
 
     return () => {
       document.removeEventListener("visibilitychange", onVis);
@@ -75,10 +73,10 @@ export default function SpaceShell({
   showMeteors = false,
 }) {
   const canvasRef = useRef(null);
+  const { isLight } = useTheme();
   const { paused, quality } = usePerfProfile();
 
-  // styles injected once (versioned)
-  const STYLE_VERSION = "space-shell-vibe-v7";
+  const STYLE_VERSION = "space-shell-vibe-v8";
 
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -89,13 +87,31 @@ export default function SpaceShell({
     const s = document.createElement("style");
     s.setAttribute("data-space-shell-style", STYLE_VERSION);
     s.textContent = `
-      .space-shell-root { position: relative; width: 100vw; min-height: 100vh; overflow-x: hidden; background: transparent; }
-      .space-shell-fixed { position: fixed; inset: 0; pointer-events: none; }
-      .space-shell-content {
-        position: relative; z-index: 5;
-        display: flex; justify-content: center; align-items: flex-start;
-        width: 100%; min-height: 100vh; box-sizing: border-box;
+      .space-shell-root {
+        position: relative;
+        width: 100vw;
+        min-height: 100vh;
+        overflow-x: hidden;
+        background: transparent;
       }
+
+      .space-shell-fixed {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      .space-shell-content {
+        position: relative;
+        z-index: 5;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        width: 100%;
+        min-height: 100vh;
+        box-sizing: border-box;
+      }
+
       .space-shell-panel {
         width: 100%;
         border-radius: 26px;
@@ -116,25 +132,83 @@ export default function SpaceShell({
         filter: saturate(1.1) contrast(1.02);
       }
 
-      .vignette::before{
-        content:"";
-        position:absolute; inset:0;
+      .vignette::before {
+        content: "";
+        position: absolute;
+        inset: 0;
         background: radial-gradient(circle at 50% 40%, rgba(0,0,0,0) 35%, rgba(0,0,0,0.55) 78%, rgba(0,0,0,0.88) 100%);
         opacity: 0.90;
       }
 
-      .grain::after{
-        content:"";
-        position:absolute; inset:0;
+      .grain::after {
+        content: "";
+        position: absolute;
+        inset: 0;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.25'/%3E%3C/svg%3E");
         mix-blend-mode: overlay;
         opacity: 0.10;
+      }
+
+      .sky-shell-light {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        background:
+          radial-gradient(1100px 560px at 50% -6%, rgba(255,255,255,0.92), rgba(255,255,255,0) 58%),
+          radial-gradient(900px 460px at 16% 18%, rgba(255,255,255,0.34), rgba(255,255,255,0) 60%),
+          radial-gradient(860px 420px at 86% 20%, rgba(255,255,255,0.30), rgba(255,255,255,0) 62%),
+          linear-gradient(180deg, var(--bg-sky-top) 0%, var(--bg-sky-mid) 48%, var(--bg-sky-bottom) 100%);
+      }
+
+      .sky-shell-light::before,
+      .sky-shell-light::after {
+        content: "";
+        position: absolute;
+        inset: -10% -14%;
+        pointer-events: none;
+        will-change: transform;
+        background-repeat: no-repeat;
+      }
+
+      .sky-shell-light::before {
+        opacity: 0.74;
+        background:
+          radial-gradient(ellipse 30% 10% at 12% 18%, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.62) 38%, rgba(255,255,255,0) 72%),
+          radial-gradient(ellipse 24% 8% at 34% 14%, rgba(255,255,255,0.84) 0%, rgba(255,255,255,0.46) 42%, rgba(255,255,255,0) 74%),
+          radial-gradient(ellipse 28% 9% at 58% 20%, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.52) 40%, rgba(255,255,255,0) 74%),
+          radial-gradient(ellipse 24% 8% at 82% 16%, rgba(255,255,255,0.86) 0%, rgba(255,255,255,0.42) 38%, rgba(255,255,255,0) 72%);
+        animation: skyCloudDriftFar 168s linear infinite;
+      }
+
+      .sky-shell-light::after {
+        opacity: 0.52;
+        background:
+          radial-gradient(ellipse 34% 12% at 18% 62%, rgba(255,255,255,0.70) 0%, rgba(255,255,255,0.34) 40%, rgba(255,255,255,0) 74%),
+          radial-gradient(ellipse 26% 10% at 46% 70%, rgba(255,255,255,0.66) 0%, rgba(255,255,255,0.28) 38%, rgba(255,255,255,0) 74%),
+          radial-gradient(ellipse 30% 11% at 78% 66%, rgba(255,255,255,0.64) 0%, rgba(255,255,255,0.26) 40%, rgba(255,255,255,0) 74%);
+        animation: skyCloudDriftNear 228s linear infinite;
+      }
+
+      @keyframes skyCloudDriftFar {
+        from { transform: translate3d(0, 0, 0); }
+        to { transform: translate3d(4.5%, 1.2%, 0); }
+      }
+
+      @keyframes skyCloudDriftNear {
+        from { transform: translate3d(0, 0, 0); }
+        to { transform: translate3d(-6%, 1.6%, 0); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .sky-shell-light::before,
+        .sky-shell-light::after {
+          animation: none !important;
+        }
       }
     `;
     document.head.appendChild(s);
   }, []);
 
-  // Canvas stars + meteors
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -145,11 +219,8 @@ export default function SpaceShell({
     let raf = 0;
     let running = true;
 
-    const mode = quality; // "off" | "lite" | "full"
-    const dpr =
-      mode === "lite"
-        ? 1
-        : Math.min(2, window.devicePixelRatio || 1);
+    const mode = quality;
+    const dpr = mode === "lite" ? 1 : Math.min(2, window.devicePixelRatio || 1);
 
     const state = {
       w: 0,
@@ -176,7 +247,6 @@ export default function SpaceShell({
       canvas.style.height = h + "px";
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      // density
       const density = (w * h) / (1100 * 700);
       const q = mode === "full" ? 1 : mode === "lite" ? 0.55 : 0.35;
 
@@ -290,7 +360,7 @@ export default function SpaceShell({
         raf = requestAnimationFrame(tick);
         return;
       }
-      if (mode === "off") {
+      if (mode === "off" || isLight) {
         ctx.clearRect(0, 0, state.w, state.h);
         raf = requestAnimationFrame(tick);
         return;
@@ -306,7 +376,6 @@ export default function SpaceShell({
       drawStars(state.starsMid, t, "rgba(210,235,255,1)");
       drawStars(state.starsNear, t, "rgba(255,255,255,1)");
 
-      // meteors only on full + showMeteors
       if (showMeteors && mode === "full") {
         if (t - state.lastSpawn > rand(0.9, 1.8)) {
           state.lastSpawn = t;
@@ -333,7 +402,7 @@ export default function SpaceShell({
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
     };
-  }, [showMeteors, paused, quality]);
+  }, [showMeteors, paused, quality, isLight]);
 
   const outer = useMemo(
     () => ({
@@ -372,16 +441,16 @@ export default function SpaceShell({
   );
 
   return (
-    <div className="space-shell-root" style={outer} data-quality={quality}>
-      <div className="space-shell-fixed nebula vignette grain" />
+    <div className="space-shell-root light-heaven-shell" style={outer} data-quality={quality}>
+      <div className={`space-shell-fixed ${isLight ? "sky-shell-light" : "nebula vignette grain"}`} />
 
       <canvas
         ref={canvasRef}
         className="space-shell-fixed"
         style={{
           zIndex: 2,
-          mixBlendMode: "screen",
-          opacity: quality === "off" ? 0 : 0.95,
+          mixBlendMode: isLight ? "normal" : "screen",
+          opacity: quality === "off" || isLight ? 0 : 0.95,
         }}
       />
 

@@ -290,12 +290,13 @@ export default function Auth({ hideLocalDock = false }) {
         </section>
 
         {/* AUTH CARD */}
-        <section style={styles.card}>
+        <section style={styles.card} className="auth-card">
           <header style={styles.cardHeader}>
-            <div style={styles.modeToggle}>
+            <div style={styles.modeToggle} className="top-pill">
               <button
                 type="button"
                 onClick={() => setMode("login")}
+                className={`chip ${mode === "login" ? "active" : ""}`}
                 style={{
                   ...styles.pill,
                   ...(mode === "login" ? styles.pillOn : {}),
@@ -307,6 +308,7 @@ export default function Auth({ hideLocalDock = false }) {
               <button
                 type="button"
                 onClick={() => setMode("signup")}
+                className={`chip ${mode === "signup" ? "active" : ""}`}
                 style={{
                   ...styles.pill,
                   ...(mode === "signup" ? styles.pillOn : {}),
@@ -321,6 +323,7 @@ export default function Auth({ hideLocalDock = false }) {
           <button
             type="button"
             onClick={loginWithMicrosoft}
+            className="top-pill"
             style={styles.msBtn}
             disabled={loading}
             title={t.msSsoTitle}
@@ -375,7 +378,7 @@ export default function Auth({ hideLocalDock = false }) {
         </section>
       </div>
 
-      <footer style={styles.footer}>
+      <footer style={styles.footer} className="glass-card">
         <div style={styles.footerLine} />
         <div style={styles.footerLinks}>
           <a

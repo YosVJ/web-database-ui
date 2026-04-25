@@ -59,7 +59,7 @@ export default function TopBar({
       <div style={styles.dock} className="theme-shell">
         <GlassClock timeText={timeText} theme={theme} />
 
-        <div style={{ ...styles.pill, ...styles.livePill }} className="theme-pill" title="Status: Live">
+          <div style={{ ...styles.pill, ...styles.livePill }} className="theme-pill top-pill" title="Status: Live">
           <span style={styles.liveDot} />
               <span style={styles.liveLabel}>LIVE</span>
         </div>
@@ -71,6 +71,7 @@ export default function TopBar({
             ...styles.langGroup,
             ...styles.group,
           }}
+          className="top-pill"
           title="Language"
         >
           <button
@@ -106,6 +107,7 @@ export default function TopBar({
             <button
               type="button"
               style={styles.profileBtn}
+              className="top-pill"
               title="Profile (coming soon)"
               disabled
             >
@@ -117,6 +119,7 @@ export default function TopBar({
               type="button"
               onClick={onLogout}
               style={styles.logoutBtn}
+              className="top-pill"
               title="Logout"
             >
               Logout

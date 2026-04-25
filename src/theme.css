@@ -54,49 +54,236 @@ html[data-theme="dark"] {
 }
 
 html[data-theme="light"] {
-  --app-bg: #eef4ff;
-  --app-text: rgba(15, 29, 56, 0.96);
-  --app-surface: rgba(255, 255, 255, 0.64);
-  --app-surface-strong: rgba(255, 255, 255, 0.8);
-  --app-border: rgba(28, 57, 112, 0.18);
-  --app-shadow: 0 18px 50px rgba(49, 83, 145, 0.18);
-  --app-art-bg:
-    radial-gradient(1100px 700px at 8% 12%, rgba(120, 167, 255, 0.32), transparent 58%),
-    radial-gradient(900px 680px at 86% 20%, rgba(169, 140, 255, 0.24), transparent 60%),
-    radial-gradient(1200px 700px at 50% 90%, rgba(142, 209, 255, 0.22), transparent 62%),
-    linear-gradient(180deg, #f6f9ff 0%, #eaf2ff 52%, #edf4ff 100%);
+  /* Light mode: premium "heaven" system (do NOT affect dark mode) */
+  --bg-sky-top: #f8fbff;
+  --bg-sky-mid: #edf5ff;
+  --bg-sky-bottom: #e8f1fb;
 
-  --text-polish: 0 1px 0 rgba(255, 255, 255, 0.72), 0 0 1px rgba(255, 255, 255, 0.5);
+  --bg-app: var(--bg-sky-mid);
+  --bg-app-2: var(--bg-sky-top);
 
-  --tile-bg: rgba(255, 255, 255, 0.58);
-  --tile-border: rgba(28, 57, 112, 0.2);
-  --tile-shadow: 0 18px 52px rgba(57, 86, 132, 0.18);
-  --tile-shadow-drag: 0 26px 110px rgba(31, 56, 98, 0.38);
-  --tile-text: rgba(16, 32, 64, 0.97);
-  --tile-text-subtle: rgba(47, 72, 114, 0.9);
-  --tile-handle-bg: rgba(255, 255, 255, 0.74);
-  --tile-handle-text: rgba(19, 41, 88, 0.93);
-  --tile-panel-bg: rgba(255, 255, 255, 0.45);
-  --tile-meta: rgba(101, 73, 24, 0.95);
-  --badge-bg: rgba(22, 45, 93, 0.12);
-  --badge-text: rgba(18, 39, 82, 0.95);
-  --badge-shadow: rgba(52, 83, 141, 0.2);
-  --title-warm: rgba(170, 108, 14, 0.96);
-  --title-name: rgba(21, 104, 194, 0.97);
-  --title-shadow: 0 0 16px rgba(126, 159, 245, 0.22), 0 0 8px rgba(137, 108, 240, 0.14);
-  --text-secondary: rgba(37, 69, 118, 0.9);
-  --demo-border-off: rgba(28, 57, 112, 0.2);
-  --demo-bg-off: rgba(255, 255, 255, 0.58);
-  --demo-text-off: rgba(20, 42, 88, 0.88);
-  --donut-track: rgba(10, 10, 12, 0.16);
-  --topbar-dock-bg: rgba(241, 246, 255, 0.45);
-  --topbar-dock-shadow: 0 14px 44px rgba(37, 65, 112, 0.17);
-  --topbar-pill-bg: rgba(255, 255, 255, 0.54);
-  --topbar-pill-text: rgba(18, 39, 82, 0.92);
-  --topbar-avatar-bg: rgba(255, 255, 255, 0.82);
+  /* SkyShell glass system */
+  /* Slightly more translucent so the sky reads through */
+  --glass-strong: rgba(255, 255, 255, 0.56);
+  --glass-mid: rgba(255, 255, 255, 0.40);
+  --glass-soft: rgba(255, 255, 255, 0.28);
+  --glass-border: rgba(255, 255, 255, 0.42);
+  --glass-border-soft: rgba(148, 163, 184, 0.18);
+  --glass-shadow: 0 18px 40px rgba(31, 41, 55, 0.10);
+  --glass-shadow-hover: 0 24px 55px rgba(31, 41, 55, 0.14);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+
+  --surface: rgba(255, 255, 255, 0.82);
+  --surface-solid: rgba(255, 255, 255, 0.92);
+  --surface-soft: rgba(255, 255, 255, 0.74);
+
+  --border-soft: rgba(148, 163, 184, 0.16);
+  --border-mid: rgba(148, 163, 184, 0.22);
+  --border-strong: rgba(96, 165, 250, 0.16);
+
+  --text-strong: #0f172a;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+
+  --shadow-soft: 0 10px 28px rgba(15, 23, 42, 0.08);
+  --shadow-hover: 0 16px 34px rgba(15, 23, 42, 0.10);
+
+  --pill-bg: rgba(255, 255, 255, 0.88);
+  --pill-hover: #f1f5f9;
+  --accent-soft: rgba(219, 234, 254, 0.95);
+  --accent-soft-2: rgba(224, 242, 254, 0.92);
+  --accent-text: #1d4ed8;
+
+  /* Map app tokens used by existing components (keep logic untouched) */
+  --app-bg: var(--bg-app);
+  --app-text: rgba(15, 23, 42, 0.96);
+  --app-surface: rgba(255, 255, 255, 0.66);
+  --app-surface-strong: rgba(255, 255, 255, 0.82);
+  --app-border: var(--border-soft);
+  --app-shadow: var(--shadow-soft);
+
+  /* Dashboard tiles (keep existing variable names, improve light readability) */
+  --tile-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.56) 0%, rgba(255, 255, 255, 0.34) 100%);
+  --tile-border: var(--glass-border);
+  --tile-shadow: var(--glass-shadow);
+  --tile-shadow-drag: 0 24px 70px rgba(15, 23, 42, 0.14);
+  --tile-text: rgba(15, 23, 42, 0.96);
+  --tile-text-subtle: rgba(71, 85, 105, 0.92);
+  --tile-handle-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.70) 0%, rgba(255, 255, 255, 0.48) 100%);
+  --tile-handle-text: rgba(30, 41, 59, 0.92);
+  --tile-panel-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.44) 0%, rgba(255, 255, 255, 0.26) 100%);
+  --tile-meta: rgba(51, 65, 85, 0.88);
+  --badge-bg: rgba(29, 78, 216, 0.08);
+  --badge-text: rgba(29, 78, 216, 0.86);
+  --badge-shadow: rgba(59, 130, 246, 0.06);
+  --title-warm: rgba(51, 65, 85, 0.92);
+  --title-name: rgba(29, 78, 216, 0.92);
+  --title-shadow: 0 0 12px rgba(59, 130, 246, 0.12);
+  --text-secondary: rgba(71, 85, 105, 0.92);
+  --demo-border-off: rgba(148, 163, 184, 0.22);
+  --demo-bg-off: rgba(255, 255, 255, 0.70);
+  --demo-text-off: rgba(30, 41, 59, 0.88);
+  --demo-border-on: rgba(59, 130, 246, 0.24);
+  --demo-bg-on: rgba(219, 234, 254, 0.78);
+  --demo-text-on: rgba(29, 78, 216, 0.96);
+  --demo-shadow-on: 0 0 16px rgba(59, 130, 246, 0.16);
+  --donut-track: rgba(15, 23, 42, 0.14);
+
+  /* TopBar pills in light mode */
+  --topbar-dock-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.58) 0%, rgba(255, 255, 255, 0.40) 100%);
+  --topbar-dock-shadow: var(--glass-shadow);
+  --topbar-pill-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.66) 0%, rgba(255, 255, 255, 0.46) 100%);
+  --topbar-pill-text: rgba(30, 41, 59, 0.92);
+  --topbar-avatar-bg: rgba(255, 255, 255, 0.78);
   --live-label-text: rgba(16, 80, 47, 0.92);
-  --live-label-shadow: 0 0 8px rgba(34, 197, 94, 0.16);
-  --clock-text-shadow: 0 0 10px rgba(76, 127, 255, 0.18);
+  --live-label-shadow: 0 0 8px rgba(34, 197, 94, 0.14);
+  --clock-text-shadow: 0 0 8px rgba(59, 130, 246, 0.10);
+
+  /* Text polish for light mode only */
+  --text-polish: 0 1px 0 rgba(255, 255, 255, 0.72), 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+/* -------- Light-only Heaven Background Shell -------- */
+[data-theme="light"] .light-heaven-shell {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0) 24%),
+    linear-gradient(180deg, var(--bg-sky-top) 0%, var(--bg-sky-mid) 46%, var(--bg-sky-bottom) 100%);
+}
+
+/* Ensure SkyShell background is always visible in light mode
+   even if a wrapper is missing or temporarily unmounted. */
+html[data-theme="light"] body {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0) 24%),
+    linear-gradient(180deg, var(--bg-sky-top) 0%, var(--bg-sky-mid) 46%, var(--bg-sky-bottom) 100%) !important;
+}
+
+[data-theme="light"] .light-heaven-shell::before,
+[data-theme="light"] .light-heaven-shell::after {
+  content: "";
+  position: absolute;
+  inset: -8% -12%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.58;
+  will-change: transform;
+  background-repeat: no-repeat;
+}
+
+[data-theme="light"] .light-heaven-shell::before {
+  background:
+    radial-gradient(ellipse 34% 12% at 18% 18%, rgba(255, 255, 255, 0.86) 0%, rgba(255, 255, 255, 0.52) 42%, rgba(255, 255, 255, 0) 72%),
+    radial-gradient(ellipse 28% 10% at 52% 16%, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.44) 44%, rgba(255, 255, 255, 0) 74%),
+    radial-gradient(ellipse 32% 11% at 82% 21%, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.38) 40%, rgba(255, 255, 255, 0) 72%);
+  animation: skyDriftFar 140s linear infinite;
+}
+
+[data-theme="light"] .light-heaven-shell::after {
+  background:
+    radial-gradient(ellipse 40% 15% at 24% 66%, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0.30) 42%, rgba(255, 255, 255, 0) 74%),
+    radial-gradient(ellipse 34% 13% at 70% 74%, rgba(255, 255, 255, 0.58) 0%, rgba(255, 255, 255, 0.26) 40%, rgba(255, 255, 255, 0) 72%);
+  animation: skyDriftNear 190s linear infinite;
+}
+
+@keyframes skyDriftFar {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(2.4%, 0.5%, 0); }
+}
+
+@keyframes skyDriftNear {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-3%, 0.8%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="light"] .light-heaven-shell::before,
+  [data-theme="light"] .light-heaven-shell::after {
+    animation: none !important;
+  }
+}
+
+/* -------- Light-only Surface + Controls System -------- */
+[data-theme="light"] .auth-card,
+[data-theme="light"] .glass-card,
+[data-theme="light"] .company-card,
+[data-theme="light"] .dashboard-panel,
+html[data-theme="light"] .theme-card,
+html[data-theme="light"] .theme-shell {
+  background: linear-gradient(180deg, var(--glass-strong) 0%, var(--glass-mid) 100%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(14px) saturate(1.08);
+  -webkit-backdrop-filter: blur(14px) saturate(1.08);
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
+}
+
+[data-theme="light"] .company-card:hover,
+[data-theme="light"] .glass-card:hover,
+html[data-theme="light"] .theme-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--glass-shadow-hover), var(--glass-highlight);
+  border-color: rgba(255, 255, 255, 0.56);
+}
+
+[data-theme="light"] .top-pill,
+[data-theme="light"] .chip,
+[data-theme="light"] .dashboard-tab,
+[data-theme="light"] .theme-toggle,
+html[data-theme="light"] .theme-pill {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.66) 0%, rgba(255, 255, 255, 0.46) 100%);
+  color: #334155;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  box-shadow: 0 10px 22px rgba(31, 41, 55, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.68);
+}
+
+[data-theme="light"] .top-pill:hover,
+[data-theme="light"] .chip:hover {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.60) 100%);
+}
+
+[data-theme="light"] .top-pill.active,
+[data-theme="light"] .chip.active {
+  background: linear-gradient(135deg, rgba(219, 234, 254, 0.95), rgba(224, 242, 254, 0.92));
+  color: #1d4ed8;
+  border-color: rgba(96, 165, 250, 0.16);
+  box-shadow: 0 14px 26px rgba(59, 130, 246, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+[data-theme="light"] .page-title,
+[data-theme="light"] .dashboard-title,
+[data-theme="light"] .card-title,
+[data-theme="light"] .metric-value {
+  color: #0f172a;
+}
+
+[data-theme="light"] .muted-text,
+[data-theme="light"] .card-subtitle {
+  color: #64748b;
+}
+
+/* Light mode: SpaceShell owns layers; ensure content stays above the heaven background */
+[data-theme="light"] .light-heaven-shell .space-shell-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Light mode: disable SpaceShell's dark-space layers (CSS only; no behavior changes) */
+html[data-theme="light"] .space-shell-fixed.nebula {
+  background: transparent !important;
+  filter: none !important;
+}
+
+html[data-theme="light"] .space-shell-fixed.space-shell-fixed {
+  /* keep layer but make star canvas effectively invisible in light mode */
+  opacity: 0 !important;
+}
+
+html[data-theme="light"] .vignette::before,
+html[data-theme="light"] .grain::after {
+  opacity: 0 !important;
 }
 
 html.theme-ready body,
